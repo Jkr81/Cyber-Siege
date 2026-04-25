@@ -12,6 +12,10 @@ PrefabInstance:
       propertyPath: animator
       value: 
       objectReference: {fileID: 4720691924559745619}
+    - target: {fileID: -8584755243846768256, guid: 31ff62ad4c6c65b40924caed5bbd909c, type: 3}
+      propertyPath: fireRate
+      value: 1.2
+      objectReference: {fileID: 0}
     - target: {fileID: 2470496694693163555, guid: 31ff62ad4c6c65b40924caed5bbd909c, type: 3}
       propertyPath: m_LocalPosition.x
       value: -0.01100005
@@ -54,7 +58,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2470496694693163740, guid: 31ff62ad4c6c65b40924caed5bbd909c, type: 3}
       propertyPath: m_Name
-      value: HandGun Infinte Ammo
+      value: Gun
       objectReference: {fileID: 0}
     - target: {fileID: 5059167939263542498, guid: 31ff62ad4c6c65b40924caed5bbd909c, type: 3}
       propertyPath: m_Enabled
@@ -149,6 +153,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: ad54dad9f077b45ee9cdf9d0988977a2, type: 3}
       insertIndex: -1
       addedObject: {fileID: 2491905333591534996}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: ad54dad9f077b45ee9cdf9d0988977a2, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 6181722970264554135}
   m_SourcePrefab: {fileID: 100100000, guid: ad54dad9f077b45ee9cdf9d0988977a2, type: 3}
 --- !u!4 &2817077550699034809 stripped
 Transform:
@@ -194,8 +201,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 232573f518947435eb0a61fb093b7468, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HealthComponent
-  MaxHealth: 50
-  CurrentHealth: 50
+  MaxHealth: 100
+  CurrentHealth: 100
+  destroyOnDeath: 1
+  deathEffect: {fileID: 7561338667224050496, guid: 200a697aec56ff04db3bed9b4380e9ff, type: 3}
+  deathEffectDestroyTime: 3
 --- !u!136 &2491905333591534996
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -215,10 +225,28 @@ CapsuleCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 0.51015735
+  m_Radius: 0.66505075
   m_Height: 2.6830804
   m_Direction: 1
-  m_Center: {x: -0.010157347, y: 0.8415402, z: 0}
+  m_Center: {x: -0.03923416, y: 0.8415402, z: 0}
+--- !u!114 &6181722970264554135
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3633419741017831968}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e855b559eec104a2db1d88c6a0c63426, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyAimerShooter
+  playerTag: Player
+  chestHeightOffset: 1
+  turnSpeed: 6
+  detectionRange: 30
+  animator: {fileID: 4720691924559745619}
+  shootingBoolName: IsShooting
 --- !u!4 &4118349085762789530 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: ad54dad9f077b45ee9cdf9d0988977a2, type: 3}
@@ -238,7 +266,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5316046413323435984, guid: 351baf954590df348a71254a311227b1, type: 3}
       propertyPath: m_LocalScale.y
-      value: 0.5669
+      value: 0.31275305
       objectReference: {fileID: 0}
     - target: {fileID: 5316046413323435984, guid: 351baf954590df348a71254a311227b1, type: 3}
       propertyPath: m_LocalScale.z
@@ -250,7 +278,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5316046413323435984, guid: 351baf954590df348a71254a311227b1, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 1.82
+      value: 1.803
       objectReference: {fileID: 0}
     - target: {fileID: 5316046413323435984, guid: 351baf954590df348a71254a311227b1, type: 3}
       propertyPath: m_LocalPosition.z
@@ -286,7 +314,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5316046413323435985, guid: 351baf954590df348a71254a311227b1, type: 3}
       propertyPath: alignWithCamera
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5316046413323435985, guid: 351baf954590df348a71254a311227b1, type: 3}
       propertyPath: <Health>k__BackingField

@@ -1173,8 +1173,8 @@ Transform:
   m_GameObject: {fileID: 7325907191753210637}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.0024762, y: 0.0050221, z: 0.082716}
-  m_LocalScale: {x: 0.63761, y: 0.63761, z: 0.63761}
+  m_LocalPosition: {x: 0.0034389, y: 0.0069746, z: 0.11487}
+  m_LocalScale: {x: 0.49671733, y: 0.49671733, z: 0.49671733}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 7325907190931382626}
@@ -1221,7 +1221,7 @@ MonoBehaviour:
   recoilAmount: -0.01
   recoilRotation: 0.5
   recoilTime: 0.1
-  bulletsPerShot: 3
+  bulletsPerShot: 2
   bulletSpreadAngle: 1
   bulletSpeed: 75
   infiniteAmmo: 1
@@ -1231,7 +1231,7 @@ MonoBehaviour:
   spawnForwardOffset: 0.3
   fireSpeed: 0.25
   automaticFiring: 0
-  showFirePointDebug: 1
+  showFirePointDebug: 0
   hapticPlayer: {fileID: 0}
   BulletFiredEvent:
     m_PersistentCalls:

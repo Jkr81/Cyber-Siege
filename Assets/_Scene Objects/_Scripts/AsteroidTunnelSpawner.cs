@@ -5,39 +5,53 @@ public class AsteroidTunnelSpawner : MonoBehaviour
 {
     [Header("References")]
     [SerializeField] private Transform player;
+    [SerializeField] private ShipFollowHybrid ship;
 
     [Header("Asteroid Prefabs")]
     [SerializeField] private GameObject[] asteroidPrefabs;
+
+    [Header("Difficulty")]
+    [SerializeField] private float maxDifficulty = 5f;
+    [SerializeField] private float maxEnemySpawnChance = 0.9f;
+    [SerializeField] private float maxRedEnemyChance = 0.9f;
 
     [Header("Enemy Spawn")]
     [SerializeField] private GameObject whiteEnemyPrefab;
     [SerializeField] private GameObject redEnemyPrefab;
     [SerializeField, Range(0f, 1f)] private float enemySpawnChance = 0.3f;
     [SerializeField, Range(0f, 1f)] private float redEnemyChance = 0.25f;
-    [SerializeField] private float enemyHeightOffset = 1.5f;
+    [SerializeField] private float enemyExtraHeight = -0.3f;
     [SerializeField] private bool enemyFacesPlayer = true;
+    [SerializeField] private float enemyActivationDistance = 60f;
+
+    [Header("Enemy Aim")]
+    [SerializeField] private float enemyAimHeightOffset = 1.2f;
+
+    [Header("Enemy Spawn Constraints")]
+    [SerializeField] private float minEnemyForwardDistance = 0f;
+    [SerializeField] private float maxEnemyForwardDistance = 180f;
+    [SerializeField] private float minEnemyHeightRelativeToPlayer = -0.5f;
+    [SerializeField] private float maxEnemyHeightRelativeToPlayer = 20f;
+
+    [Header("Enemy Despawn")]
+    [SerializeField] private bool fadeEnemyOnDespawn = true;
+    [SerializeField] private float enemyFadeTime = 0.75f;
 
     [Header("Asteroid Glow")]
     [SerializeField] private bool enableAsteroidGlow = true;
     [SerializeField] private Color normalGlowColor = new Color(0.6f, 0f, 1f);
     [SerializeField] private Color enemyAsteroidGlowColor = Color.red;
-    [SerializeField] private Color movingAsteroidGlowColor = Color.cyan;
     [SerializeField] private float glowIntensity = 4f;
 
-    [Header("Moving Empty Asteroids")]
-    [SerializeField] private bool moveEmptyAsteroids = true;
-    [SerializeField, Range(0f, 1f)] private float movingEmptyAsteroidChance = 0.5f;
-    [SerializeField] private float minDriftSpeed = 0.15f;
-    [SerializeField] private float maxDriftSpeed = 0.5f;
-    [SerializeField] private float sidewaysDriftAmount = 0.25f;
-    [SerializeField] private float verticalDriftAmount = 0.15f;
-    [SerializeField] private float minRotationSpeed = 2f;
-    [SerializeField] private float maxRotationSpeed = 8f;
+    [Header("All Asteroid Left/Right Drift")]
+    [SerializeField] private bool driftAllAsteroids = true;
+    [SerializeField] private float driftAmount = 0.5f;
+    [SerializeField] private float driftSpeed = 0.6f;
 
     [Header("Section Spawn")]
     [SerializeField] private float sectionLength = 40f;
     [SerializeField] private int sectionsAhead = 6;
-    [SerializeField] private int sectionsBehindToKeep = 2;
+    [SerializeField] private int sectionsBehindToKeep = 1;
 
     [Header("Start Gap")]
     [SerializeField] private float startOffset = 25f;
@@ -53,29 +67,28 @@ public class AsteroidTunnelSpawner : MonoBehaviour
     [Header("Optional")]
     [SerializeField] private bool clearChildrenOnStart = true;
 
-    [Header("Zone 1: Intro (0 - 100)")]
-    [SerializeField] private float zone1Radius = 10f;
-    [SerializeField] private float zone1Thickness = 2f;
+    [Header("Zone 1: Intro")]
+    [SerializeField] private float zone1Radius = 7f;
+    [SerializeField] private float zone1Thickness = 1.5f;
     [SerializeField] private int zone1AsteroidsPerSection = 22;
 
-    [Header("Zone 2: Combat (100 - 250)")]
-    [SerializeField] private float zone2Radius = 8f;
-    [SerializeField] private float zone2Thickness = 2.2f;
+    [Header("Zone 2: Combat")]
+    [SerializeField] private float zone2Radius = 5.5f;
+    [SerializeField] private float zone2Thickness = 1.6f;
     [SerializeField] private int zone2AsteroidsPerSection = 32;
 
-    [Header("Zone 3: Danger (250 - 400)")]
-    [SerializeField] private float zone3Radius = 6f;
-    [SerializeField] private float zone3Thickness = 2.5f;
+    [Header("Zone 3: Danger")]
+    [SerializeField] private float zone3Radius = 4.5f;
+    [SerializeField] private float zone3Thickness = 1.8f;
     [SerializeField] private int zone3AsteroidsPerSection = 42;
 
-    [Header("Zone 4: Boss (400+)")]
-    [SerializeField] private float zone4Radius = 12f;
-    [SerializeField] private float zone4Thickness = 1.5f;
+    [Header("Zone 4: Boss")]
+    [SerializeField] private float zone4Radius = 8f;
+    [SerializeField] private float zone4Thickness = 1.2f;
     [SerializeField] private int zone4AsteroidsPerSection = 12;
 
     private class SpawnedSection
     {
-        public int sectionIndex;
         public List<GameObject> asteroids = new List<GameObject>();
     }
 
@@ -97,19 +110,15 @@ public class AsteroidTunnelSpawner : MonoBehaviour
 
     private void Start()
     {
-        if (player == null)
+        if (player == null || asteroidPrefabs == null || asteroidPrefabs.Length == 0)
         {
-            Debug.LogWarning("AsteroidTunnelSpawner: No player assigned.");
+            Debug.LogWarning("AsteroidTunnelSpawner: Missing player or asteroid prefabs.");
             enabled = false;
             return;
         }
 
-        if (asteroidPrefabs == null || asteroidPrefabs.Length == 0)
-        {
-            Debug.LogWarning("AsteroidTunnelSpawner: No asteroid prefabs assigned.");
-            enabled = false;
-            return;
-        }
+        if (ship == null)
+            ship = player.GetComponentInParent<ShipFollowHybrid>();
 
         if (clearChildrenOnStart)
             ClearSpawnedAsteroids();
@@ -120,7 +129,15 @@ public class AsteroidTunnelSpawner : MonoBehaviour
     private void Update()
     {
         UpdateTunnel();
-        UpdateMovingAsteroids();
+        UpdateAsteroidBehaviors();
+    }
+
+    private float GetDifficulty()
+    {
+        if (ship == null)
+            return 1f;
+
+        return Mathf.Clamp(ship.DifficultyMultiplier, 1f, maxDifficulty);
     }
 
     private void UpdateTunnel()
@@ -144,8 +161,8 @@ public class AsteroidTunnelSpawner : MonoBehaviour
                 sectionsToRemove.Add(kvp.Key);
         }
 
-        for (int i = 0; i < sectionsToRemove.Count; i++)
-            RemoveSection(sectionsToRemove[i]);
+        foreach (int sectionIndex in sectionsToRemove)
+            RemoveSection(sectionIndex);
     }
 
     private float GetPlayerForwardDistance()
@@ -158,13 +175,21 @@ public class AsteroidTunnelSpawner : MonoBehaviour
     private void SpawnSection(int sectionIndex)
     {
         SpawnSettings settings = GetSettingsForDistance(sectionIndex * sectionLength);
-
         SpawnedSection newSection = new SpawnedSection();
-        newSection.sectionIndex = sectionIndex;
 
         Vector3 tunnelStart = transform.position + player.forward * startOffset;
         float sectionStartDistance = sectionIndex * sectionLength;
         float sectionEndDistance = sectionStartDistance + sectionLength;
+
+        float difficulty = GetDifficulty();
+
+        float scaledEnemySpawnChance = Mathf.Clamp(
+            enemySpawnChance * difficulty,
+            enemySpawnChance,
+            maxEnemySpawnChance
+        );
+
+        float scaledActivationDistance = enemyActivationDistance * difficulty;
 
         int spawned = 0;
         int attempts = 0;
@@ -189,38 +214,49 @@ public class AsteroidTunnelSpawner : MonoBehaviour
             if (Vector3.Distance(worldPos, player.position) < safeRadius)
                 continue;
 
-            GameObject prefab = asteroidPrefabs[Random.Range(0, asteroidPrefabs.Length)];
-            Quaternion rot = randomRotation ? Random.rotation : Quaternion.identity;
+            GameObject asteroidPrefab = asteroidPrefabs[Random.Range(0, asteroidPrefabs.Length)];
+            Quaternion asteroidRot = randomRotation ? Random.rotation : Quaternion.identity;
 
-            GameObject asteroid = Instantiate(prefab, worldPos, rot, transform);
+            GameObject asteroid = Instantiate(asteroidPrefab, worldPos, asteroidRot, transform);
+            asteroid.transform.localScale = Vector3.one * Random.Range(randomScaleMin, randomScaleMax);
 
-            float randomScale = Random.Range(randomScaleMin, randomScaleMax);
-            asteroid.transform.localScale = Vector3.one * randomScale;
-
-            bool spawnedEnemy = TrySpawnEnemyOnAsteroid(asteroid);
-            bool isMovingAsteroid = false;
-
-            if (!spawnedEnemy && moveEmptyAsteroids && Random.value < movingEmptyAsteroidChance)
+            Rigidbody[] rigidbodies = asteroid.GetComponentsInChildren<Rigidbody>();
+            foreach (Rigidbody rb in rigidbodies)
             {
-                MovingAsteroid moving = asteroid.AddComponent<MovingAsteroid>();
-                moving.Initialize(
-                    Random.Range(minDriftSpeed, maxDriftSpeed),
-                    sidewaysDriftAmount,
-                    verticalDriftAmount,
-                    Random.Range(minRotationSpeed, maxRotationSpeed)
-                );
-
-                isMovingAsteroid = true;
+                rb.linearVelocity = Vector3.zero;
+                rb.angularVelocity = Vector3.zero;
+                rb.isKinematic = true;
+                rb.constraints = RigidbodyConstraints.FreezeRotation;
             }
 
-            if (enableAsteroidGlow)
+            if (driftAllAsteroids)
             {
-                if (spawnedEnemy)
-                    ApplyGlow(asteroid, enemyAsteroidGlowColor);
-                else if (isMovingAsteroid)
-                    ApplyGlow(asteroid, movingAsteroidGlowColor);
-                else
-                    ApplyGlow(asteroid, normalGlowColor);
+                HorizontalDriftAsteroid drift = asteroid.AddComponent<HorizontalDriftAsteroid>();
+                drift.Initialize(driftAmount, driftSpeed * difficulty, player);
+            }
+
+            bool willHaveEnemy = Random.value <= scaledEnemySpawnChance;
+            GameObject enemyPrefab = willHaveEnemy ? ChooseEnemyPrefab(difficulty) : null;
+
+            if (enemyPrefab != null && !IsValidEnemyAsteroidPosition(asteroid.transform.position))
+                enemyPrefab = null;
+
+            if (enableAsteroidGlow)
+                ApplyGlow(asteroid, enemyPrefab != null ? enemyAsteroidGlowColor : normalGlowColor);
+
+            if (enemyPrefab != null)
+            {
+                EnemySpawnPoint spawnPoint = asteroid.AddComponent<EnemySpawnPoint>();
+                spawnPoint.Initialize(
+                    enemyPrefab,
+                    player,
+                    scaledActivationDistance,
+                    enemyExtraHeight,
+                    enemyFacesPlayer,
+                    fadeEnemyOnDespawn,
+                    enemyFadeTime,
+                    enemyAimHeightOffset
+                );
             }
 
             newSection.asteroids.Add(asteroid);
@@ -230,37 +266,29 @@ public class AsteroidTunnelSpawner : MonoBehaviour
         spawnedSections.Add(sectionIndex, newSection);
     }
 
-    private bool TrySpawnEnemyOnAsteroid(GameObject asteroid)
+    private bool IsValidEnemyAsteroidPosition(Vector3 asteroidPosition)
     {
-        if (Random.value > enemySpawnChance)
+        if (player == null)
             return false;
 
-        GameObject chosenEnemyPrefab = ChooseEnemyPrefab();
+        Vector3 localPos = player.InverseTransformPoint(asteroidPosition);
 
-        if (chosenEnemyPrefab == null)
+        if (localPos.z < minEnemyForwardDistance)
             return false;
 
-        Vector3 enemyPos = asteroid.transform.position + Vector3.up * enemyHeightOffset;
+        if (localPos.z > maxEnemyForwardDistance)
+            return false;
 
-        Quaternion enemyRot = Quaternion.identity;
+        if (localPos.y < minEnemyHeightRelativeToPlayer)
+            return false;
 
-        if (enemyFacesPlayer && player != null)
-        {
-            Vector3 lookDirection = player.position - enemyPos;
-            lookDirection.y = 0f;
-
-            if (lookDirection != Vector3.zero)
-                enemyRot = Quaternion.LookRotation(lookDirection);
-        }
-
-        GameObject enemy = Instantiate(chosenEnemyPrefab, enemyPos, enemyRot, asteroid.transform);
-
-        enemy.transform.localScale = Vector3.one;
+        if (localPos.y > maxEnemyHeightRelativeToPlayer)
+            return false;
 
         return true;
     }
 
-    private GameObject ChooseEnemyPrefab()
+    private GameObject ChooseEnemyPrefab(float difficulty)
     {
         if (whiteEnemyPrefab == null && redEnemyPrefab == null)
             return null;
@@ -271,7 +299,13 @@ public class AsteroidTunnelSpawner : MonoBehaviour
         if (redEnemyPrefab == null)
             return whiteEnemyPrefab;
 
-        return Random.value < redEnemyChance ? redEnemyPrefab : whiteEnemyPrefab;
+        float scaledRedChance = Mathf.Clamp(
+            redEnemyChance * difficulty,
+            redEnemyChance,
+            maxRedEnemyChance
+        );
+
+        return Random.value < scaledRedChance ? redEnemyPrefab : whiteEnemyPrefab;
     }
 
     private void ApplyGlow(GameObject asteroid, Color glowColor)
@@ -294,15 +328,9 @@ public class AsteroidTunnelSpawner : MonoBehaviour
                 }
 
                 if (mat.HasProperty("_BaseColor"))
-                {
-                    Color baseColor = Color.Lerp(Color.black, glowColor, 0.35f);
-                    mat.SetColor("_BaseColor", baseColor);
-                }
+                    mat.SetColor("_BaseColor", Color.Lerp(Color.black, glowColor, 0.35f));
                 else if (mat.HasProperty("_Color"))
-                {
-                    Color baseColor = Color.Lerp(Color.black, glowColor, 0.35f);
-                    mat.SetColor("_Color", baseColor);
-                }
+                    mat.SetColor("_Color", Color.Lerp(Color.black, glowColor, 0.35f));
             }
         }
     }
@@ -312,10 +340,10 @@ public class AsteroidTunnelSpawner : MonoBehaviour
         if (!spawnedSections.TryGetValue(sectionIndex, out SpawnedSection section))
             return;
 
-        for (int i = 0; i < section.asteroids.Count; i++)
+        foreach (GameObject asteroid in section.asteroids)
         {
-            if (section.asteroids[i] != null)
-                Destroy(section.asteroids[i]);
+            if (asteroid != null)
+                Destroy(asteroid);
         }
 
         spawnedSections.Remove(sectionIndex);
@@ -343,45 +371,245 @@ public class AsteroidTunnelSpawner : MonoBehaviour
         return new SpawnSettings(zone4Radius, zone4Thickness, zone4AsteroidsPerSection);
     }
 
-    private void UpdateMovingAsteroids()
+    private void UpdateAsteroidBehaviors()
     {
-        MovingAsteroid[] movingAsteroids = GetComponentsInChildren<MovingAsteroid>();
+        HorizontalDriftAsteroid[] driftingAsteroids = GetComponentsInChildren<HorizontalDriftAsteroid>();
+        EnemySpawnPoint[] enemySpawnPoints = GetComponentsInChildren<EnemySpawnPoint>();
 
-        for (int i = 0; i < movingAsteroids.Length; i++)
-        {
-            if (movingAsteroids[i] != null)
-                movingAsteroids[i].ManualUpdate();
-        }
+        foreach (HorizontalDriftAsteroid drift in driftingAsteroids)
+            drift.ManualUpdate();
+
+        foreach (EnemySpawnPoint spawnPoint in enemySpawnPoints)
+            spawnPoint.ManualUpdate();
     }
 
-    private class MovingAsteroid : MonoBehaviour
+    private class HorizontalDriftAsteroid : MonoBehaviour
     {
-        private float driftSpeed;
-        private float rotationSpeed;
+        private Vector3 startPosition;
         private Vector3 driftDirection;
+        private float driftAmount;
+        private float driftSpeed;
+        private float offset;
 
-        public void Initialize(float speed, float sidewaysAmount, float verticalAmount, float rotation)
+        public void Initialize(float amount, float speed, Transform player)
         {
+            startPosition = transform.position;
+            driftAmount = amount;
             driftSpeed = speed;
-            rotationSpeed = rotation;
-
-            driftDirection = new Vector3(
-                Random.Range(-sidewaysAmount, sidewaysAmount),
-                Random.Range(-verticalAmount, verticalAmount),
-                -1f
-            ).normalized;
+            offset = Random.Range(0f, 100f);
+            driftDirection = player != null ? player.right : Vector3.right;
         }
 
         public void ManualUpdate()
         {
-            transform.position += driftDirection * driftSpeed * Time.deltaTime;
+            float drift = Mathf.Sin(Time.time * driftSpeed + offset) * driftAmount;
+            transform.position = startPosition + driftDirection * drift;
+        }
+    }
 
-            transform.Rotate(
-                rotationSpeed * Time.deltaTime,
-                rotationSpeed * 0.7f * Time.deltaTime,
-                rotationSpeed * 0.4f * Time.deltaTime,
-                Space.Self
-            );
+    private class EnemySpawnPoint : MonoBehaviour
+    {
+        private GameObject enemyPrefab;
+        private GameObject spawnedEnemy;
+        private Transform player;
+        private float activationDistance;
+        private float despawnDistance;
+        private float enemyExtraHeight;
+        private bool enemyFacesPlayer;
+        private bool fadeOnDespawn;
+        private float fadeTime;
+        private bool isDespawning;
+        private bool hasSpawnedOnce;
+        private float aimHeightOffset;
+
+        public void Initialize(
+            GameObject prefab,
+            Transform playerTransform,
+            float distance,
+            float extraHeight,
+            bool facePlayer,
+            bool fade,
+            float fadeDuration,
+            float targetHeightOffset
+        )
+        {
+            enemyPrefab = prefab;
+            player = playerTransform;
+            activationDistance = distance;
+            despawnDistance = activationDistance * 2f;
+            enemyExtraHeight = extraHeight;
+            enemyFacesPlayer = facePlayer;
+            fadeOnDespawn = fade;
+            fadeTime = fadeDuration;
+            aimHeightOffset = targetHeightOffset;
+
+            hasSpawnedOnce = false;
+            isDespawning = false;
+            spawnedEnemy = null;
+        }
+
+        public void ManualUpdate()
+        {
+            if (enemyPrefab == null || player == null || isDespawning)
+                return;
+
+            float distanceToPlayer = Vector3.Distance(transform.position, player.position);
+
+            if (!hasSpawnedOnce && spawnedEnemy == null && distanceToPlayer <= activationDistance)
+            {
+                SpawnEnemy();
+                hasSpawnedOnce = true;
+            }
+
+            if (spawnedEnemy != null && enemyFacesPlayer)
+                AimEnemyAtPlayer();
+
+            if (spawnedEnemy != null && distanceToPlayer >= despawnDistance)
+            {
+                if (fadeOnDespawn)
+                {
+                    EnemyFadeDestroy fade = spawnedEnemy.AddComponent<EnemyFadeDestroy>();
+                    fade.BeginFade(fadeTime);
+                    isDespawning = true;
+                    spawnedEnemy = null;
+                }
+                else
+                {
+                    Destroy(spawnedEnemy);
+                    spawnedEnemy = null;
+                    isDespawning = true;
+                }
+            }
+        }
+
+        private void SpawnEnemy()
+        {
+            float topHeight = GetTopHeight();
+            Vector3 enemyPos = transform.position + Vector3.up * (topHeight + enemyExtraHeight);
+
+            if (player != null && enemyPos.y < player.position.y - 0.5f)
+                enemyPos.y = player.position.y - 0.5f;
+
+            Quaternion enemyRot = Quaternion.identity;
+
+            if (enemyFacesPlayer && player != null)
+            {
+                Vector3 lookDir = GetTargetPosition() - enemyPos;
+
+                if (lookDir.sqrMagnitude > 0.001f)
+                    enemyRot = Quaternion.LookRotation(lookDir);
+            }
+
+            spawnedEnemy = Instantiate(enemyPrefab, enemyPos, enemyRot, transform);
+            spawnedEnemy.transform.localScale = Vector3.one;
+            isDespawning = false;
+        }
+
+        private void AimEnemyAtPlayer()
+        {
+            Vector3 lookDir = GetTargetPosition() - spawnedEnemy.transform.position;
+
+            if (lookDir.sqrMagnitude <= 0.001f)
+                return;
+
+            spawnedEnemy.transform.rotation = Quaternion.LookRotation(lookDir);
+        }
+
+        private Vector3 GetTargetPosition()
+        {
+            return player.position + Vector3.up * aimHeightOffset;
+        }
+
+        private float GetTopHeight()
+        {
+            Renderer[] renderers = GetComponentsInChildren<Renderer>();
+
+            if (renderers.Length == 0)
+                return 2f;
+
+            Bounds bounds = renderers[0].bounds;
+
+            for (int i = 1; i < renderers.Length; i++)
+                bounds.Encapsulate(renderers[i].bounds);
+
+            return bounds.extents.y;
+        }
+    }
+
+    private class EnemyFadeDestroy : MonoBehaviour
+    {
+        private Renderer[] renderers;
+        private Material[] materials;
+        private float fadeTime;
+        private float timer;
+
+        public void BeginFade(float duration)
+        {
+            fadeTime = Mathf.Max(0.01f, duration);
+            renderers = GetComponentsInChildren<Renderer>();
+
+            List<Material> materialList = new List<Material>();
+
+            foreach (Renderer r in renderers)
+            {
+                foreach (Material mat in r.materials)
+                {
+                    if (mat != null)
+                    {
+                        SetupTransparentMaterial(mat);
+                        materialList.Add(mat);
+                    }
+                }
+            }
+
+            materials = materialList.ToArray();
+
+            Collider[] colliders = GetComponentsInChildren<Collider>();
+            foreach (Collider c in colliders)
+                c.enabled = false;
+        }
+
+        private void Update()
+        {
+            timer += Time.deltaTime;
+            float alpha = Mathf.Lerp(1f, 0f, timer / fadeTime);
+
+            foreach (Material mat in materials)
+            {
+                if (mat == null)
+                    continue;
+
+                if (mat.HasProperty("_BaseColor"))
+                {
+                    Color color = mat.GetColor("_BaseColor");
+                    color.a = alpha;
+                    mat.SetColor("_BaseColor", color);
+                }
+                else if (mat.HasProperty("_Color"))
+                {
+                    Color color = mat.GetColor("_Color");
+                    color.a = alpha;
+                    mat.SetColor("_Color", color);
+                }
+            }
+
+            if (timer >= fadeTime)
+                Destroy(gameObject);
+        }
+
+        private void SetupTransparentMaterial(Material mat)
+        {
+            if (mat.HasProperty("_Surface"))
+                mat.SetFloat("_Surface", 1f);
+
+            if (mat.HasProperty("_Blend"))
+                mat.SetFloat("_Blend", 0f);
+
+            mat.renderQueue = 3000;
+            mat.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
+            mat.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
+            mat.SetInt("_ZWrite", 0);
+            mat.EnableKeyword("_SURFACE_TYPE_TRANSPARENT");
         }
     }
 }

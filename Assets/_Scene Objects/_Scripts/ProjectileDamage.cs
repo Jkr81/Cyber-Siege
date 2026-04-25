@@ -6,29 +6,47 @@ public class ProjectileDamage : MonoBehaviour
     [SerializeField] private float damage = 10f;
     [SerializeField] private bool destroyOnHit = true;
 
+    [Header("Impact Effect")]
+    [SerializeField] private GameObject impactEffect;
+    [SerializeField] private float impactDestroyTime = 2f;
+
+    private bool hasHit = false;
+
     private void OnTriggerEnter(Collider other)
     {
-        HealthComponent health = other.GetComponentInParent<HealthComponent>();
-
-        if (health != null)
-        {
-            health.TakeDamage(damage);
-
-            if (destroyOnHit)
-                Destroy(gameObject);
-        }
+        DealDamage(other);
     }
 
     private void OnCollisionEnter(Collision collision)
     {
-        HealthComponent health = collision.collider.GetComponentInParent<HealthComponent>();
+        DealDamage(collision.collider);
+    }
 
-        if (health != null)
+    private void DealDamage(Collider hitCollider)
+    {
+        if (hasHit) return;
+
+        HealthComponent health = hitCollider.GetComponentInParent<HealthComponent>();
+        if (health == null) return;
+
+        hasHit = true;
+
+        if (impactEffect != null)
         {
-            health.TakeDamage(damage);
+            GameObject impact = Instantiate(
+                impactEffect,
+                transform.position,
+                Quaternion.identity
+            );
 
-            if (destroyOnHit)
-                Destroy(gameObject);
+            Destroy(impact, impactDestroyTime);
+        }
+
+        health.TakeDamage(damage);
+
+        if (destroyOnHit)
+        {
+            Destroy(gameObject);
         }
     }
 }

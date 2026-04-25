@@ -422,8 +422,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::EnemyAutoFire
   animator: {fileID: 4720691924559745619, guid: bcec109163aa740beb6c2bb43d8c0b95, type: 3}
   gun: {fileID: 2470496694693163557}
-  shootStateName: Shooting
-  fireAtNormalizedTime: 0.35
+  firePoint: {fileID: 2470496694738155995}
+  playerTag: Player
+  detectionDistance: 45
+  chestHeightOffset: 1
+  fireRate: 1.3
+  showAimDebug: 1
+  debugRayLength: 20
 --- !u!1 &2470496694734723888
 GameObject:
   m_ObjectHideFlags: 0
@@ -488,7 +493,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2470496694738155995}
   m_Layer: 0
-  m_Name: GunTip
+  m_Name: FirePoint
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

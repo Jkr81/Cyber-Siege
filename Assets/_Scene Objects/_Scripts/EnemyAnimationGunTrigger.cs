@@ -7,46 +7,97 @@ public class EnemyAnimationGunTrigger : MonoBehaviour
     [SerializeField] private Animator animator;
     [SerializeField] private ProjectileWeapon gun;
 
-    [Header("Animation")]
-    [SerializeField] private string shootStateName = "Shooting";
-    [SerializeField, Range(0f, 1f)] private float fireAtNormalizedTime = 0.35f;
+    [Header("Aim Reference")]
+    [Tooltip("Assign the FirePoint / muzzle object here if you have one.")]
+    [SerializeField] private Transform firePoint;
 
-    private bool firedThisLoop;
-    private float previousTime;
+    [Header("Player Detection")]
+    [SerializeField] private string playerTag = "Player";
+    [SerializeField] private float detectionDistance = 60f;
+    [SerializeField] private float chestHeightOffset = 1.2f;
 
-    void Awake()
+    [Header("Shooting")]
+    [Tooltip("Seconds between shots. Higher = slower. Lower = faster.")]
+    [SerializeField] private float fireRate = 1.3f;
+
+    [Header("Debug Aim Lines")]
+    [SerializeField] private bool showAimDebug = true;
+    [SerializeField] private float debugRayLength = 20f;
+
+    private Transform player;
+    private float nextFireTime;
+
+    void Start()
     {
+        if (animator == null)
+            animator = GetComponentInParent<Animator>();
+
         if (gun == null)
             gun = GetComponent<ProjectileWeapon>();
 
-        if (animator == null)
-            animator = GetComponentInParent<Animator>();
+        if (firePoint == null)
+        {
+            Transform found = transform.Find("FirePoint");
+            if (found != null)
+                firePoint = found;
+        }
+
+        GameObject playerObj = GameObject.FindGameObjectWithTag(playerTag);
+
+        if (playerObj != null)
+            player = playerObj.transform;
+        else if (Camera.main != null)
+            player = Camera.main.transform;
+
+        if (animator != null)
+            animator.enabled = false;
+
+        nextFireTime = Time.time + Random.Range(0f, fireRate);
     }
 
     void Update()
     {
-        if (animator == null || gun == null) return;
+        if (player == null || gun == null) return;
 
-        AnimatorStateInfo state = animator.GetCurrentAnimatorStateInfo(0);
+        Transform aimOrigin = firePoint != null ? firePoint : transform;
 
-        if (!state.IsName(shootStateName))
+        Vector3 targetPoint = player.position + Vector3.up * chestHeightOffset;
+        float distance = Vector3.Distance(aimOrigin.position, targetPoint);
+
+        Vector3 aimDirection = targetPoint - aimOrigin.position;
+
+        if (showAimDebug)
         {
-            firedThisLoop = false;
-            previousTime = 0f;
+            // GREEN = exact line to your chest
+            Debug.DrawLine(aimOrigin.position, targetPoint, Color.green);
+
+            // RED = where the FirePoint is actually aiming
+            Debug.DrawRay(aimOrigin.position, aimOrigin.forward * debugRayLength, Color.red);
+        }
+
+        if (distance > detectionDistance)
+        {
+            if (animator != null)
+                animator.enabled = false;
+
             return;
         }
 
-        float time = state.normalizedTime % 1f;
+        if (animator != null && !animator.enabled)
+            animator.enabled = true;
 
-        if (time < previousTime)
-            firedThisLoop = false;
-
-        if (!firedThisLoop && time >= fireAtNormalizedTime)
+        if (aimDirection.sqrMagnitude > 0.001f)
         {
-            firedThisLoop = true;
-            gun.ShootFromAnimation();
+            Quaternion aimRotation = Quaternion.LookRotation(aimDirection.normalized);
+            aimOrigin.rotation = aimRotation;
         }
 
-        previousTime = time;
+        if (Time.time >= nextFireTime)
+        {
+            gun.ShootFromAnimation();
+
+            float randomOffset = Random.Range(0.8f, 1.2f);
+            nextFireTime = Time.time + (fireRate * randomOffset);
+        }
     }
 }
