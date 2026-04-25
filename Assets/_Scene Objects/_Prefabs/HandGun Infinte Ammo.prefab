@@ -424,7 +424,7 @@ MonoBehaviour:
   gun: {fileID: 2470496694693163557}
   firePoint: {fileID: 2470496694738155995}
   playerTag: Player
-  detectionDistance: 45
+  detectionDistance: 60
   chestHeightOffset: 1
   fireRate: 1.3
   showAimDebug: 1

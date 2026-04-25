@@ -2,8 +2,10 @@ using UnityEngine;
 
 public class EnemyBulletDamage : MonoBehaviour
 {
-    [Header("Damage")]
-    public float damage = 100f;
+    [Header("Damage Scaling")]
+    public float startDamage = 5f;
+    public float maxDamage = 25f;
+    public float distanceToMaxDamage = 1500f;
 
     [Header("Lifetime (controls distance)")]
     public float lifetime = 2.5f;
@@ -13,10 +15,23 @@ public class EnemyBulletDamage : MonoBehaviour
     public float impactDestroyTime = 2f;
 
     private bool hasHit = false;
+    private static ShipFollowHybrid ship;
 
     void Start()
     {
+        if (ship == null)
+            ship = FindFirstObjectByType<ShipFollowHybrid>();
+
         Destroy(gameObject, lifetime);
+    }
+
+    private float GetScaledDamage()
+    {
+        if (ship == null)
+            return startDamage;
+
+        float progress = Mathf.Clamp01(ship.transform.position.z / distanceToMaxDamage);
+        return Mathf.Lerp(startDamage, maxDamage, progress);
     }
 
     private void OnTriggerEnter(Collider other)
@@ -30,7 +45,7 @@ public class EnemyBulletDamage : MonoBehaviour
 
         if (player != null)
         {
-            player.TakeDamage(damage);
+            player.TakeDamage(GetScaledDamage());
         }
 
         Destroy(gameObject);

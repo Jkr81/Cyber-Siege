@@ -4,13 +4,13 @@ using TMPro;
 
 public class PlayerDamageReceiver : MonoBehaviour
 {
-    [Header("Health")]
-    public float maxHealth = 1000f;
-    public float currentHealth = 1000f;
+    [Header("Health / Score")]
+    public float maxHealth = 5000f;
+    public float currentHealth = 5000f;
 
     [Header("UI")]
     [SerializeField] private Image healthBarFill;
-    [SerializeField] private TMP_Text healthPercentText;
+    [SerializeField] private TMP_Text healthNumberText;
 
     void Start()
     {
@@ -23,7 +23,21 @@ public class PlayerDamageReceiver : MonoBehaviour
         currentHealth -= damage;
         currentHealth = Mathf.Clamp(currentHealth, 0f, maxHealth);
 
-        Debug.Log("Player took damage. Health now: " + currentHealth);
+        Debug.Log("Player lost " + damage + ". Health/Score now: " + currentHealth);
+
+        UpdateUI();
+    }
+
+    public void AddHealthScore(float amount)
+    {
+        currentHealth += amount;
+
+        if (currentHealth > maxHealth)
+        {
+            maxHealth = currentHealth;
+        }
+
+        Debug.Log("Player gained " + amount + ". Health/Score now: " + currentHealth);
 
         UpdateUI();
     }
@@ -32,26 +46,19 @@ public class PlayerDamageReceiver : MonoBehaviour
     {
         float percent = currentHealth / maxHealth;
 
-        // Fill amount
         if (healthBarFill != null)
         {
             healthBarFill.fillAmount = percent;
 
-            // 🔥 Color change: Green → Yellow → Red
             if (percent > 0.5f)
-            {
-                // Green to Yellow
                 healthBarFill.color = Color.Lerp(Color.yellow, Color.green, (percent - 0.5f) * 2f);
-            }
             else
-            {
-                // Yellow to Red
                 healthBarFill.color = Color.Lerp(Color.red, Color.yellow, percent * 2f);
-            }
         }
 
-        // Percent text
-        if (healthPercentText != null)
-            healthPercentText.text = Mathf.RoundToInt(percent * 100f) + "%";
+        if (healthNumberText != null)
+        {
+            healthNumberText.text = Mathf.RoundToInt(currentHealth).ToString();
+        }
     }
 }

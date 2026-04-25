@@ -37,7 +37,6 @@ namespace Ilumisoft.HealthSystem.UI
         {
             isDead = true;
 
-            // 💀 spawn death effect
             if (deathEffect != null)
             {
                 GameObject effect = Instantiate(
@@ -51,10 +50,13 @@ namespace Ilumisoft.HealthSystem.UI
 
             Debug.Log(gameObject.name + " died");
 
-            GameManager manager = FindFirstObjectByType<GameManager>();
-            if (manager != null)
+            if (GameManager.Instance != null)
             {
-                manager.AddKill();
+                GameManager.Instance.AddKill();
+            }
+            else
+            {
+                Debug.LogWarning("No GameManager.Instance found. Kill/score not added.");
             }
 
             if (destroyOnDeath)

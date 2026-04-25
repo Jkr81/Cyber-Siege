@@ -10,26 +10,41 @@ public class AsteroidTunnelSpawner : MonoBehaviour
     [Header("Asteroid Prefabs")]
     [SerializeField] private GameObject[] asteroidPrefabs;
 
+    [Header("Curved Tunnel")]
+    [SerializeField] private bool enableCurve = true;
+    [SerializeField] private float curveSideAmount = 10f;
+    [SerializeField] private float curveUpAmount = 4f;
+    [SerializeField] private float curveLength = 250f;
+
+    [Header("Progression Timer")]
+    [SerializeField] private float timeToMaxDifficulty = 180f;
+    private float runTimer = 0f;
+
+    [Header("Distance Zones")]
+    [SerializeField] private float introEndDistance = 250f;
+    [SerializeField] private float combatEndDistance = 700f;
+    [SerializeField] private float chaosEndDistance = 1200f;
+
     [Header("Difficulty")]
-    [SerializeField] private float maxDifficulty = 5f;
-    [SerializeField] private float maxEnemySpawnChance = 0.9f;
-    [SerializeField] private float maxRedEnemyChance = 0.9f;
+    [SerializeField] private float maxDifficulty = 3f;
+    [SerializeField] private float maxEnemySpawnChance = 0.6f;
+    [SerializeField] private float maxRedEnemyChance = 0.45f;
 
     [Header("Enemy Spawn")]
     [SerializeField] private GameObject whiteEnemyPrefab;
     [SerializeField] private GameObject redEnemyPrefab;
     [SerializeField, Range(0f, 1f)] private float enemySpawnChance = 0.3f;
-    [SerializeField, Range(0f, 1f)] private float redEnemyChance = 0.25f;
+    [SerializeField, Range(0f, 1f)] private float redEnemyChance = 0.15f;
     [SerializeField] private float enemyExtraHeight = -0.3f;
     [SerializeField] private bool enemyFacesPlayer = true;
-    [SerializeField] private float enemyActivationDistance = 60f;
+    [SerializeField] private float enemyActivationDistance = 140f;
 
     [Header("Enemy Aim")]
     [SerializeField] private float enemyAimHeightOffset = 1.2f;
 
     [Header("Enemy Spawn Constraints")]
-    [SerializeField] private float minEnemyForwardDistance = 0f;
-    [SerializeField] private float maxEnemyForwardDistance = 180f;
+    [SerializeField] private float minEnemyForwardDistance = 60f;
+    [SerializeField] private float maxEnemyForwardDistance = 220f;
     [SerializeField] private float minEnemyHeightRelativeToPlayer = -0.5f;
     [SerializeField] private float maxEnemyHeightRelativeToPlayer = 20f;
 
@@ -50,7 +65,7 @@ public class AsteroidTunnelSpawner : MonoBehaviour
 
     [Header("Section Spawn")]
     [SerializeField] private float sectionLength = 40f;
-    [SerializeField] private int sectionsAhead = 6;
+    [SerializeField] private int sectionsAhead = 10;
     [SerializeField] private int sectionsBehindToKeep = 1;
 
     [Header("Start Gap")]
@@ -70,22 +85,22 @@ public class AsteroidTunnelSpawner : MonoBehaviour
     [Header("Zone 1: Intro")]
     [SerializeField] private float zone1Radius = 7f;
     [SerializeField] private float zone1Thickness = 1.5f;
-    [SerializeField] private int zone1AsteroidsPerSection = 22;
+    [SerializeField] private int zone1AsteroidsPerSection = 26;
 
     [Header("Zone 2: Combat")]
     [SerializeField] private float zone2Radius = 5.5f;
     [SerializeField] private float zone2Thickness = 1.6f;
-    [SerializeField] private int zone2AsteroidsPerSection = 32;
+    [SerializeField] private int zone2AsteroidsPerSection = 34;
 
-    [Header("Zone 3: Danger")]
+    [Header("Zone 3: Chaos")]
     [SerializeField] private float zone3Radius = 4.5f;
     [SerializeField] private float zone3Thickness = 1.8f;
-    [SerializeField] private int zone3AsteroidsPerSection = 42;
+    [SerializeField] private int zone3AsteroidsPerSection = 40;
 
-    [Header("Zone 4: Boss")]
+    [Header("Zone 4: Boss Arena")]
     [SerializeField] private float zone4Radius = 8f;
     [SerializeField] private float zone4Thickness = 1.2f;
-    [SerializeField] private int zone4AsteroidsPerSection = 12;
+    [SerializeField] private int zone4AsteroidsPerSection = 18;
 
     private class SpawnedSection
     {
@@ -128,16 +143,42 @@ public class AsteroidTunnelSpawner : MonoBehaviour
 
     private void Update()
     {
+        runTimer += Time.deltaTime;
+
         UpdateTunnel();
         UpdateAsteroidBehaviors();
     }
 
     private float GetDifficulty()
     {
-        if (ship == null)
-            return 1f;
+        float timeDifficulty = Mathf.Lerp(1f, maxDifficulty, Mathf.Clamp01(runTimer / timeToMaxDifficulty));
 
-        return Mathf.Clamp(ship.DifficultyMultiplier, 1f, maxDifficulty);
+        if (ship == null)
+            return timeDifficulty;
+
+        return Mathf.Clamp(Mathf.Max(ship.DifficultyMultiplier, timeDifficulty), 1f, maxDifficulty);
+    }
+
+    private float GetPlayerForwardDistance()
+    {
+        Vector3 tunnelStart = transform.position + Vector3.forward * startOffset;
+        Vector3 fromStartToPlayer = player.position - tunnelStart;
+        return Vector3.Dot(fromStartToPlayer, Vector3.forward);
+    }
+
+    private Vector3 GetTunnelCenter(float distance)
+    {
+        Vector3 basePos = transform.position + Vector3.forward * (startOffset + distance);
+
+        if (!enableCurve)
+            return basePos;
+
+        float t = distance / curveLength;
+
+        float sideCurve = Mathf.Sin(t) * curveSideAmount;
+        float upCurve = Mathf.Sin(t * 0.6f) * curveUpAmount;
+
+        return basePos + Vector3.right * sideCurve + Vector3.up * upCurve;
     }
 
     private void UpdateTunnel()
@@ -165,21 +206,13 @@ public class AsteroidTunnelSpawner : MonoBehaviour
             RemoveSection(sectionIndex);
     }
 
-    private float GetPlayerForwardDistance()
-    {
-        Vector3 tunnelStart = transform.position + player.forward * startOffset;
-        Vector3 fromStartToPlayer = player.position - tunnelStart;
-        return Vector3.Dot(fromStartToPlayer, player.forward);
-    }
-
     private void SpawnSection(int sectionIndex)
     {
-        SpawnSettings settings = GetSettingsForDistance(sectionIndex * sectionLength);
-        SpawnedSection newSection = new SpawnedSection();
-
-        Vector3 tunnelStart = transform.position + player.forward * startOffset;
         float sectionStartDistance = sectionIndex * sectionLength;
         float sectionEndDistance = sectionStartDistance + sectionLength;
+
+        SpawnSettings settings = GetSettingsForDistance(sectionStartDistance);
+        SpawnedSection newSection = new SpawnedSection();
 
         float difficulty = GetDifficulty();
 
@@ -193,7 +226,7 @@ public class AsteroidTunnelSpawner : MonoBehaviour
 
         int spawned = 0;
         int attempts = 0;
-        int maxAttempts = settings.asteroidsPerSection * 12;
+        int maxAttempts = settings.asteroidsPerSection * 15;
 
         while (spawned < settings.asteroidsPerSection && attempts < maxAttempts)
         {
@@ -203,13 +236,13 @@ public class AsteroidTunnelSpawner : MonoBehaviour
             float angle = Random.Range(0f, Mathf.PI * 2f);
             float radius = Random.Range(settings.radius, settings.radius + settings.thickness);
 
-            Vector3 localOffset = new Vector3(
-                Mathf.Cos(angle) * radius,
-                Mathf.Sin(angle) * radius,
-                forwardDistance
-            );
+            Vector3 tunnelCenter = GetTunnelCenter(forwardDistance);
 
-            Vector3 worldPos = tunnelStart + player.TransformDirection(localOffset);
+            Vector3 ringOffset =
+                Vector3.right * Mathf.Cos(angle) * radius +
+                Vector3.up * Mathf.Sin(angle) * radius;
+
+            Vector3 worldPos = tunnelCenter + ringOffset;
 
             if (Vector3.Distance(worldPos, player.position) < safeRadius)
                 continue;
@@ -232,7 +265,7 @@ public class AsteroidTunnelSpawner : MonoBehaviour
             if (driftAllAsteroids)
             {
                 HorizontalDriftAsteroid drift = asteroid.AddComponent<HorizontalDriftAsteroid>();
-                drift.Initialize(driftAmount, driftSpeed * difficulty, player);
+                drift.Initialize(driftAmount, driftSpeed * difficulty);
             }
 
             bool willHaveEnemy = Random.value <= scaledEnemySpawnChance;
@@ -266,23 +299,40 @@ public class AsteroidTunnelSpawner : MonoBehaviour
         spawnedSections.Add(sectionIndex, newSection);
     }
 
+    private SpawnSettings GetSettingsForDistance(float distance)
+    {
+        if (distance < introEndDistance)
+            return new SpawnSettings(zone1Radius, zone1Thickness, zone1AsteroidsPerSection);
+
+        if (distance < combatEndDistance)
+            return new SpawnSettings(zone2Radius, zone2Thickness, zone2AsteroidsPerSection);
+
+        if (distance < chaosEndDistance)
+            return new SpawnSettings(zone3Radius, zone3Thickness, zone3AsteroidsPerSection);
+
+        return new SpawnSettings(zone4Radius, zone4Thickness, zone4AsteroidsPerSection);
+    }
+
     private bool IsValidEnemyAsteroidPosition(Vector3 asteroidPosition)
     {
         if (player == null)
             return false;
 
-        Vector3 localPos = player.InverseTransformPoint(asteroidPosition);
+        Vector3 toAsteroid = asteroidPosition - player.position;
 
-        if (localPos.z < minEnemyForwardDistance)
+        float forwardDistance = Vector3.Dot(toAsteroid, Vector3.forward);
+        float heightDifference = asteroidPosition.y - player.position.y;
+
+        if (forwardDistance < minEnemyForwardDistance)
             return false;
 
-        if (localPos.z > maxEnemyForwardDistance)
+        if (forwardDistance > maxEnemyForwardDistance)
             return false;
 
-        if (localPos.y < minEnemyHeightRelativeToPlayer)
+        if (heightDifference < minEnemyHeightRelativeToPlayer)
             return false;
 
-        if (localPos.y > maxEnemyHeightRelativeToPlayer)
+        if (heightDifference > maxEnemyHeightRelativeToPlayer)
             return false;
 
         return true;
@@ -357,20 +407,6 @@ public class AsteroidTunnelSpawner : MonoBehaviour
         spawnedSections.Clear();
     }
 
-    private SpawnSettings GetSettingsForDistance(float distance)
-    {
-        if (distance < 100f)
-            return new SpawnSettings(zone1Radius, zone1Thickness, zone1AsteroidsPerSection);
-
-        if (distance < 250f)
-            return new SpawnSettings(zone2Radius, zone2Thickness, zone2AsteroidsPerSection);
-
-        if (distance < 400f)
-            return new SpawnSettings(zone3Radius, zone3Thickness, zone3AsteroidsPerSection);
-
-        return new SpawnSettings(zone4Radius, zone4Thickness, zone4AsteroidsPerSection);
-    }
-
     private void UpdateAsteroidBehaviors()
     {
         HorizontalDriftAsteroid[] driftingAsteroids = GetComponentsInChildren<HorizontalDriftAsteroid>();
@@ -391,13 +427,13 @@ public class AsteroidTunnelSpawner : MonoBehaviour
         private float driftSpeed;
         private float offset;
 
-        public void Initialize(float amount, float speed, Transform player)
+        public void Initialize(float amount, float speed)
         {
             startPosition = transform.position;
             driftAmount = amount;
             driftSpeed = speed;
             offset = Random.Range(0f, 100f);
-            driftDirection = player != null ? player.right : Vector3.right;
+            driftDirection = Vector3.right;
         }
 
         public void ManualUpdate()

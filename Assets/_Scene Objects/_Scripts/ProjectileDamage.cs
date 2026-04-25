@@ -14,33 +14,30 @@ public class ProjectileDamage : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        DealDamage(other);
+        DealDamage(other, transform.position);
     }
 
     private void OnCollisionEnter(Collision collision)
     {
-        DealDamage(collision.collider);
+        Vector3 hitPoint = collision.contacts.Length > 0
+            ? collision.contacts[0].point
+            : transform.position;
+
+        DealDamage(collision.collider, hitPoint);
     }
 
-    private void DealDamage(Collider hitCollider)
+    private void DealDamage(Collider hitCollider, Vector3 hitPoint)
     {
         if (hasHit) return;
 
         HealthComponent health = hitCollider.GetComponentInParent<HealthComponent>();
+
+        // Ignore anything that is not an enemy/health object
         if (health == null) return;
 
         hasHit = true;
 
-        if (impactEffect != null)
-        {
-            GameObject impact = Instantiate(
-                impactEffect,
-                transform.position,
-                Quaternion.identity
-            );
-
-            Destroy(impact, impactDestroyTime);
-        }
+        SpawnImpact(hitPoint);
 
         health.TakeDamage(damage);
 
@@ -48,5 +45,18 @@ public class ProjectileDamage : MonoBehaviour
         {
             Destroy(gameObject);
         }
+    }
+
+    private void SpawnImpact(Vector3 position)
+    {
+        if (impactEffect == null) return;
+
+        GameObject impact = Instantiate(
+            impactEffect,
+            position,
+            Quaternion.identity
+        );
+
+        Destroy(impact, impactDestroyTime);
     }
 }

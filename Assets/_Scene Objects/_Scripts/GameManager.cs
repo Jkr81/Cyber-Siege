@@ -3,21 +3,33 @@ using TMPro;
 
 public class GameManager : MonoBehaviour
 {
-    [Header("Player Health")]
-    [SerializeField] private PlayerDamageReceiver playerHealth;
-    [SerializeField] private TMP_Text healthText;
+    public static GameManager Instance;
 
-    [Header("Kills")]
+    [Header("Player Health / Score")]
+    [SerializeField] private PlayerDamageReceiver playerHealth;
+    [SerializeField] private TMP_Text healthScoreText;
+
+    [Header("HUD")]
     [SerializeField] private TMP_Text killCountText;
+
+    [Header("Points")]
+    [SerializeField] private int basePointsPerKill = 100;
+    [SerializeField] private float intensityMultiplier = 1f;
+    [SerializeField] private float intensityIncreasePerKill = 0.15f;
+    [SerializeField] private float maxIntensityMultiplier = 5f;
 
     private int kills = 0;
     private bool gameEnded = false;
 
+    private void Awake()
+    {
+        Instance = this;
+    }
+
     void Start()
     {
         Time.timeScale = 1f;
-        UpdateKillUI();
-        UpdateHealthUI();
+        UpdateUI();
     }
 
     void Update()
@@ -25,7 +37,7 @@ public class GameManager : MonoBehaviour
         if (gameEnded) return;
         if (playerHealth == null) return;
 
-        UpdateHealthUI();
+        UpdateUI();
 
         if (playerHealth.currentHealth <= 0)
         {
@@ -36,22 +48,32 @@ public class GameManager : MonoBehaviour
     public void AddKill()
     {
         kills++;
-        UpdateKillUI();
+
+        int pointsThisKill = Mathf.RoundToInt(basePointsPerKill * intensityMultiplier);
+
+        if (playerHealth != null)
+        {
+            playerHealth.AddHealthScore(pointsThisKill);
+        }
+
+        intensityMultiplier += intensityIncreasePerKill;
+        intensityMultiplier = Mathf.Clamp(intensityMultiplier, 1f, maxIntensityMultiplier);
+
+        UpdateUI();
+
+        Debug.Log("Kill +" + pointsThisKill + " | Health/Score: " + playerHealth.currentHealth);
     }
 
-    private void UpdateKillUI()
+    private void UpdateUI()
     {
+        if (healthScoreText != null && playerHealth != null)
+        {
+            healthScoreText.text = Mathf.RoundToInt(playerHealth.currentHealth).ToString();
+        }
+
         if (killCountText != null)
         {
             killCountText.text = kills.ToString();
-        }
-    }
-
-    private void UpdateHealthUI()
-    {
-        if (healthText != null && playerHealth != null)
-        {
-            healthText.text = Mathf.RoundToInt(playerHealth.currentHealth).ToString();
         }
     }
 

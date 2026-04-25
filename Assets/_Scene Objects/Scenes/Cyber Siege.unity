@@ -149,8 +149,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameManager
   playerHealth: {fileID: 1761329167}
-  healthText: {fileID: 1539907936}
+  healthScoreText: {fileID: 1539907936}
   killCountText: {fileID: 1725999996}
+  basePointsPerKill: 100
+  intensityMultiplier: 1
+  intensityIncreasePerKill: 0.15
+  maxIntensityMultiplier: 5
 --- !u!4 &122991565
 Transform:
   m_ObjectHideFlags: 0
@@ -886,19 +890,27 @@ MonoBehaviour:
   - {fileID: 145745857315540189, guid: e84fa2d9126ec35449faa21983210506, type: 3}
   - {fileID: 6008313612060568548, guid: 576916bea59c68e4592618fac70959c5, type: 3}
   - {fileID: 5202983862988789535, guid: 7b67950a3c8e9a84b8c2b35bc85b8953, type: 3}
-  maxDifficulty: 5
-  maxEnemySpawnChance: 0.9
-  maxRedEnemyChance: 0.9
+  enableCurve: 1
+  curveSideAmount: 10
+  curveUpAmount: 4
+  curveLength: 250
+  timeToMaxDifficulty: 180
+  introEndDistance: 350
+  combatEndDistance: 900
+  chaosEndDistance: 1500
+  maxDifficulty: 3
+  maxEnemySpawnChance: 0.4
+  maxRedEnemyChance: 0.45
   whiteEnemyPrefab: {fileID: 3633419741017831968, guid: bcec109163aa740beb6c2bb43d8c0b95, type: 3}
   redEnemyPrefab: {fileID: 2262201813364664584, guid: 7e9bd157d11fe44edb390cc003084549, type: 3}
-  enemySpawnChance: 0.3
-  redEnemyChance: 0.25
+  enemySpawnChance: 0.18
+  redEnemyChance: 0.1
   enemyExtraHeight: 0
   enemyFacesPlayer: 1
-  enemyActivationDistance: 45
+  enemyActivationDistance: 60
   enemyAimHeightOffset: 1.2
   minEnemyForwardDistance: 0
-  maxEnemyForwardDistance: 9999
+  maxEnemyForwardDistance: 500
   minEnemyHeightRelativeToPlayer: -1
   maxEnemyHeightRelativeToPlayer: 6
   fadeEnemyOnDespawn: 1
@@ -908,10 +920,10 @@ MonoBehaviour:
   enemyAsteroidGlowColor: {r: 1, g: 0, b: 0, a: 1}
   glowIntensity: 10
   driftAllAsteroids: 1
-  driftAmount: 1
-  driftSpeed: 1
+  driftAmount: 0.75
+  driftSpeed: 0.75
   sectionLength: 40
-  sectionsAhead: 6
+  sectionsAhead: 10
   sectionsBehindToKeep: 2
   startOffset: 25
   safeRadius: 12
@@ -1237,16 +1249,18 @@ MonoBehaviour:
       m_Flags: 0
     m_Reference: {fileID: -8198699208435500284, guid: c348712bda248c246b8c49b3db54643f, type: 3}
   autoMoveForward: 1
-  startForwardSpeed: 1
-  maxForwardSpeed: 5
-  speedIncreaseRate: 0.1
+  startForwardSpeed: 2
+  maxForwardSpeed: 8
+  speedIncreaseRate: 0.02
+  followCurve: 1
+  curveSideAmount: 10
+  curveUpAmount: 4
+  curveLength: 250
   moveSpeed: 5
   maxTunnelRadius: 4
+  returnToCenterSpeed: 2
+  inputDeadzone: 0.15
   turnSpeed: 90
-  tunnelDirection: {x: 0, y: 0, z: 1}
-  tunnelRight: {x: 1, y: 0, z: 0}
-  tunnelUp: {x: 0, y: 1, z: 0}
-  lockY: 1
 --- !u!4 &1596976053 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 7333583456472705109, guid: d6738978eed90493fb3d7b77d946af2a, type: 3}
@@ -1538,7 +1552,7 @@ MonoBehaviour:
   maxHealth: 5000
   currentHealth: 5000
   healthBarFill: {fileID: 427243665}
-  healthPercentText: {fileID: 1539907936}
+  healthNumberText: {fileID: 1539907936}
 --- !u!4 &1901965409 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 5316046413323435984, guid: 351baf954590df348a71254a311227b1, type: 3}

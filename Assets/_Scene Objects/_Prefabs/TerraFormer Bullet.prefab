@@ -134,7 +134,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ProjectileDamage
   damage: 10
   destroyOnHit: 1
-  impactEffect: {fileID: 7561338667224050496, guid: b01d86ce0cf260642a372ef30b47f1fd, type: 3}
+  impactEffect: {fileID: 3901148745110949095, guid: 9192e08d2f3857b468cb7452ab4bbdb9, type: 3}
   impactDestroyTime: 2
 --- !u!1 &2897808304556876308
 GameObject:

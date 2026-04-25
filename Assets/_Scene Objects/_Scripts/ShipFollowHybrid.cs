@@ -13,26 +13,25 @@ public class ShipFollowHybrid : MonoBehaviour
     [SerializeField] private float maxForwardSpeed = 20f;
     [SerializeField] private float speedIncreaseRate = 0.1f;
 
+    [Header("Curved Tunnel")]
+    [SerializeField] private bool followCurve = true;
+    [SerializeField] private float curveSideAmount = 10f;
+    [SerializeField] private float curveUpAmount = 4f;
+    [SerializeField] private float curveLength = 250f;
+
     [Header("Player Control Inside Tunnel")]
     [SerializeField] private float moveSpeed = 5f;
     [SerializeField] private float maxTunnelRadius = 4.5f;
+    [SerializeField] private float returnToCenterSpeed = 2f;
+    [SerializeField] private float inputDeadzone = 0.15f;
 
     [Header("Turning")]
     [SerializeField] private float turnSpeed = 90f;
-
-    [Header("Tunnel Axis")]
-    [SerializeField] private Vector3 tunnelDirection = Vector3.forward;
-    [SerializeField] private Vector3 tunnelRight = Vector3.right;
-    [SerializeField] private Vector3 tunnelUp = Vector3.up;
-
-    [Header("Height Lock")]
-    [SerializeField] private bool lockY = false;
 
     private float currentForwardSpeed;
     private float forwardDistance;
     private Vector2 tunnelOffset;
     private Vector3 startPosition;
-    private float fixedY;
 
     public float DifficultyMultiplier { get; private set; } = 1f;
 
@@ -51,18 +50,16 @@ public class ShipFollowHybrid : MonoBehaviour
     private void Start()
     {
         startPosition = transform.position;
-        fixedY = transform.position.y;
         currentForwardSpeed = startForwardSpeed;
-
-        tunnelDirection = tunnelDirection.normalized;
-        tunnelRight = tunnelRight.normalized;
-        tunnelUp = tunnelUp.normalized;
     }
 
     private void Update()
     {
         Vector2 moveInput = leftMove.action != null ? leftMove.action.ReadValue<Vector2>() : Vector2.zero;
         Vector2 turnInput = rightTurn.action != null ? rightTurn.action.ReadValue<Vector2>() : Vector2.zero;
+
+        if (moveInput.magnitude < inputDeadzone)
+            moveInput = Vector2.zero;
 
         if (autoMoveForward)
         {
@@ -71,27 +68,45 @@ public class ShipFollowHybrid : MonoBehaviour
             forwardDistance += currentForwardSpeed * Time.deltaTime;
         }
 
-        // Move inside circular tunnel area
-        tunnelOffset += moveInput * moveSpeed * Time.deltaTime;
+        if (moveInput != Vector2.zero)
+        {
+            tunnelOffset += moveInput * moveSpeed * Time.deltaTime;
+        }
+        else
+        {
+            tunnelOffset = Vector2.Lerp(tunnelOffset, Vector2.zero, returnToCenterSpeed * Time.deltaTime);
+        }
 
-        // This keeps you inside a circle, not just left/right
         tunnelOffset = Vector2.ClampMagnitude(tunnelOffset, maxTunnelRadius);
 
-        Vector3 newPosition =
-            startPosition +
-            tunnelDirection * forwardDistance +
-            tunnelRight * tunnelOffset.x +
-            tunnelUp * tunnelOffset.y;
+        Vector3 center = GetTunnelCenter(forwardDistance);
 
-        if (lockY)
-            newPosition.y = fixedY;
+        Vector3 newPosition =
+            center +
+            Vector3.right * tunnelOffset.x +
+            Vector3.up * tunnelOffset.y;
 
         transform.position = newPosition;
 
-        // Turning only rotates view/ship, it does NOT change tunnel direction
         float yawAmount = turnInput.x * turnSpeed * Time.deltaTime;
         transform.Rotate(0f, yawAmount, 0f, Space.World);
 
-        DifficultyMultiplier = 1f + (forwardDistance / 75f);
+        DifficultyMultiplier = 1f + (forwardDistance / 50f);
+        DifficultyMultiplier = Mathf.Clamp(DifficultyMultiplier, 1f, 3f);
+    }
+
+    private Vector3 GetTunnelCenter(float distance)
+    {
+        Vector3 basePos = startPosition + Vector3.forward * distance;
+
+        if (!followCurve)
+            return basePos;
+
+        float t = distance / curveLength;
+
+        float sideCurve = Mathf.Sin(t) * curveSideAmount;
+        float upCurve = Mathf.Sin(t * 0.6f) * curveUpAmount;
+
+        return basePos + Vector3.right * sideCurve + Vector3.up * upCurve;
     }
 }
