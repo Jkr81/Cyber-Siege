@@ -151,10 +151,10 @@ MonoBehaviour:
   playerHealth: {fileID: 1761329167}
   healthScoreText: {fileID: 1539907936}
   killCountText: {fileID: 1725999996}
-  basePointsPerKill: 100
+  defaultPointsPerKill: 100
   intensityMultiplier: 1
-  intensityIncreasePerKill: 0.15
-  maxIntensityMultiplier: 5
+  intensityIncreasePerKill: 0.03
+  maxIntensityMultiplier: 1.5
 --- !u!4 &122991565
 Transform:
   m_ObjectHideFlags: 0
@@ -455,9 +455,9 @@ AudioSource:
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
-  m_Resource: {fileID: 8300000, guid: 9eeb14617f4cb6445b8fdcd8a958785d, type: 3}
+  m_Resource: {fileID: 8300000, guid: 7a7d16d2b3ed36e41931b4e2b2d885ba, type: 3}
   m_PlayOnAwake: 1
-  m_Volume: 0.493
+  m_Volume: 1
   m_Pitch: 1
   Loop: 1
   Mute: 0
@@ -903,8 +903,9 @@ MonoBehaviour:
   maxRedEnemyChance: 0.45
   whiteEnemyPrefab: {fileID: 3633419741017831968, guid: bcec109163aa740beb6c2bb43d8c0b95, type: 3}
   redEnemyPrefab: {fileID: 2262201813364664584, guid: 7e9bd157d11fe44edb390cc003084549, type: 3}
-  enemySpawnChance: 0.18
-  redEnemyChance: 0.1
+  enemySpawnChance: 0.417
+  redEnemyChance: 0.294
+  minEnemySpawnPointsPerSection: 4
   enemyExtraHeight: 0
   enemyFacesPlayer: 1
   enemyActivationDistance: 60
@@ -1212,6 +1213,66 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 50, y: 57.37, z: 0}
+--- !u!1 &1580364037
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1580364039}
+  - component: {fileID: 1580364038}
+  m_Layer: 0
+  m_Name: Boss Encounter Spawner
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1580364038
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1580364037}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7ba2bb46d03154b0788da3d772106f8d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BossEncounterSpawner
+  bossPrefab: {fileID: 1375313731827495156, guid: cb634725557124a3fb3b4a98a1acaa80, type: 3}
+  bossAsteroidPrefab: {fileID: 868489677944155340, guid: d0b5e3ab20db345beb42985d08c4ee90, type: 3}
+  player: {fileID: 1761329158}
+  spawnDistanceFromStart: 10
+  spawnInFrontOfPlayer: 50
+  asteroidOffset: {x: 0, y: -8, z: 0}
+  bossOffsetOnAsteroid: {x: 0, y: 4, z: 0}
+  moveBossAsteroid: 1
+  asteroidMoveAmount: 6
+  asteroidMoveSpeed: 1.2
+  shipMovement: {fileID: 1596976051}
+  stopShipDuringBoss: 1
+  bossEntranceSound: {fileID: 0}
+  entranceEffect: {fileID: 0}
+  fadeBossIn: 1
+  fadeDuration: 5
+--- !u!4 &1580364039
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1580364037}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -3.64994, y: 0, z: 8.13297}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1596976051
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2437,3 +2498,4 @@ SceneRoots:
   - {fileID: 776761802}
   - {fileID: 1728175857}
   - {fileID: 122991565}
+  - {fileID: 1580364039}

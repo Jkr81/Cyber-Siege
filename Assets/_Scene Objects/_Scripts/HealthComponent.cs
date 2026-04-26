@@ -13,6 +13,10 @@ namespace Ilumisoft.HealthSystem.UI
         [SerializeField] private GameObject deathEffect;
         [SerializeField] private float deathEffectDestroyTime = 3f;
 
+        [Header("Kill Points")]
+        [SerializeField] private int defaultPointsOnKill = 100;
+        [SerializeField] private int redEnemyPointsOnKill = 250;
+
         private bool isDead = false;
 
         private void Awake()
@@ -52,7 +56,14 @@ namespace Ilumisoft.HealthSystem.UI
 
             if (GameManager.Instance != null)
             {
-                GameManager.Instance.AddKill();
+                int points = defaultPointsOnKill;
+
+                if (gameObject.CompareTag("RedEnemy"))
+                {
+                    points = redEnemyPointsOnKill;
+                }
+
+                GameManager.Instance.AddKill(points);
             }
             else
             {

@@ -210,6 +210,8 @@ MonoBehaviour:
   destroyOnDeath: 1
   deathEffect: {fileID: 7561338667224050496, guid: 200a697aec56ff04db3bed9b4380e9ff, type: 3}
   deathEffectDestroyTime: 3
+  defaultPointsOnKill: 100
+  redEnemyPointsOnKill: 150
 --- !u!136 &2491905333591534996
 CapsuleCollider:
   m_ObjectHideFlags: 0

@@ -31,14 +31,13 @@ public class ProjectileDamage : MonoBehaviour
         if (hasHit) return;
 
         HealthComponent health = hitCollider.GetComponentInParent<HealthComponent>();
-
-        // Ignore anything that is not an enemy/health object
         if (health == null) return;
 
         hasHit = true;
 
         SpawnImpact(hitPoint);
 
+        // ONLY damage — no scoring here anymore
         health.TakeDamage(damage);
 
         if (destroyOnHit)

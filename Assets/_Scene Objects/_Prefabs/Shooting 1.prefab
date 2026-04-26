@@ -52,6 +52,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Shooting 1
       objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: ad54dad9f077b45ee9cdf9d0988977a2, type: 3}
+      propertyPath: m_TagString
+      value: RedEnemy
+      objectReference: {fileID: 0}
     - target: {fileID: 3853268898807207900, guid: ad54dad9f077b45ee9cdf9d0988977a2, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
@@ -137,6 +141,8 @@ MonoBehaviour:
   destroyOnDeath: 1
   deathEffect: {fileID: 7561338667224050496, guid: 200a697aec56ff04db3bed9b4380e9ff, type: 3}
   deathEffectDestroyTime: 3
+  defaultPointsOnKill: 100
+  redEnemyPointsOnKill: 150
 --- !u!136 &1448797331137654833
 CapsuleCollider:
   m_ObjectHideFlags: 0

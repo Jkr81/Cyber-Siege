@@ -13,7 +13,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] private TMP_Text killCountText;
 
     [Header("Points")]
-    [SerializeField] private int basePointsPerKill = 100;
+    [SerializeField] private int defaultPointsPerKill = 100;
     [SerializeField] private float intensityMultiplier = 1f;
     [SerializeField] private float intensityIncreasePerKill = 0.15f;
     [SerializeField] private float maxIntensityMultiplier = 5f;
@@ -47,9 +47,14 @@ public class GameManager : MonoBehaviour
 
     public void AddKill()
     {
+        AddKill(defaultPointsPerKill);
+    }
+
+    public void AddKill(int enemyBasePoints)
+    {
         kills++;
 
-        int pointsThisKill = Mathf.RoundToInt(basePointsPerKill * intensityMultiplier);
+        int pointsThisKill = Mathf.RoundToInt(enemyBasePoints * intensityMultiplier);
 
         if (playerHealth != null)
         {
@@ -61,7 +66,7 @@ public class GameManager : MonoBehaviour
 
         UpdateUI();
 
-        Debug.Log("Kill +" + pointsThisKill + " | Health/Score: " + playerHealth.currentHealth);
+        Debug.Log("Kill +" + pointsThisKill + " points");
     }
 
     private void UpdateUI()

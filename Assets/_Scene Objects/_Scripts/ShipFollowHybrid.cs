@@ -33,7 +33,19 @@ public class ShipFollowHybrid : MonoBehaviour
     private Vector2 tunnelOffset;
     private Vector3 startPosition;
 
+    private bool bossPaused = false;
+
     public float DifficultyMultiplier { get; private set; } = 1f;
+
+    public float ForwardDistance
+    {
+        get { return forwardDistance; }
+    }
+
+    public void SetBossPaused(bool paused)
+    {
+        bossPaused = paused;
+    }
 
     private void OnEnable()
     {
@@ -61,7 +73,7 @@ public class ShipFollowHybrid : MonoBehaviour
         if (moveInput.magnitude < inputDeadzone)
             moveInput = Vector2.zero;
 
-        if (autoMoveForward)
+        if (autoMoveForward && !bossPaused)
         {
             currentForwardSpeed += speedIncreaseRate * Time.deltaTime;
             currentForwardSpeed = Mathf.Clamp(currentForwardSpeed, startForwardSpeed, maxForwardSpeed);
