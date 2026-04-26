@@ -35,6 +35,7 @@ public class AsteroidTunnelSpawner : MonoBehaviour
     [SerializeField] private GameObject redEnemyPrefab;
     [SerializeField, Range(0f, 1f)] private float enemySpawnChance = 0.3f;
     [SerializeField, Range(0f, 1f)] private float redEnemyChance = 0.15f;
+    [SerializeField] private int minEnemySpawnPointsPerSection = 2;
     [SerializeField] private float enemyExtraHeight = -0.3f;
     [SerializeField] private bool enemyFacesPlayer = true;
     [SerializeField] private float enemyActivationDistance = 140f;
@@ -214,6 +215,9 @@ public class AsteroidTunnelSpawner : MonoBehaviour
         SpawnSettings settings = GetSettingsForDistance(sectionStartDistance);
         SpawnedSection newSection = new SpawnedSection();
 
+        int enemySpawnPointsThisSection = 0;
+        List<GameObject> validEnemyAsteroids = new List<GameObject>();
+
         float difficulty = GetDifficulty();
 
         float scaledEnemySpawnChance = Mathf.Clamp(
@@ -268,11 +272,13 @@ public class AsteroidTunnelSpawner : MonoBehaviour
                 drift.Initialize(driftAmount, driftSpeed * difficulty);
             }
 
-            bool willHaveEnemy = Random.value <= scaledEnemySpawnChance;
-            GameObject enemyPrefab = willHaveEnemy ? ChooseEnemyPrefab(difficulty) : null;
+            bool validForEnemy = IsValidEnemyAsteroidPosition(asteroid.transform.position);
 
-            if (enemyPrefab != null && !IsValidEnemyAsteroidPosition(asteroid.transform.position))
-                enemyPrefab = null;
+            if (validForEnemy)
+                validEnemyAsteroids.Add(asteroid);
+
+            bool willHaveEnemy = validForEnemy && Random.value <= scaledEnemySpawnChance;
+            GameObject enemyPrefab = willHaveEnemy ? ChooseEnemyPrefab(difficulty) : null;
 
             if (enableAsteroidGlow)
                 ApplyGlow(asteroid, enemyPrefab != null ? enemyAsteroidGlowColor : normalGlowColor);
@@ -290,10 +296,50 @@ public class AsteroidTunnelSpawner : MonoBehaviour
                     enemyFadeTime,
                     enemyAimHeightOffset
                 );
+
+                enemySpawnPointsThisSection++;
             }
 
             newSection.asteroids.Add(asteroid);
             spawned++;
+        }
+
+        while (
+            enemySpawnPointsThisSection < minEnemySpawnPointsPerSection &&
+            validEnemyAsteroids.Count > 0
+        )
+        {
+            int index = Random.Range(0, validEnemyAsteroids.Count);
+            GameObject asteroid = validEnemyAsteroids[index];
+            validEnemyAsteroids.RemoveAt(index);
+
+            if (asteroid == null)
+                continue;
+
+            if (asteroid.GetComponent<EnemySpawnPoint>() != null)
+                continue;
+
+            GameObject forcedEnemyPrefab = ChooseEnemyPrefab(difficulty);
+
+            if (forcedEnemyPrefab == null)
+                break;
+
+            EnemySpawnPoint spawnPoint = asteroid.AddComponent<EnemySpawnPoint>();
+            spawnPoint.Initialize(
+                forcedEnemyPrefab,
+                player,
+                scaledActivationDistance,
+                enemyExtraHeight,
+                enemyFacesPlayer,
+                fadeEnemyOnDespawn,
+                enemyFadeTime,
+                enemyAimHeightOffset
+            );
+
+            if (enableAsteroidGlow)
+                ApplyGlow(asteroid, enemyAsteroidGlowColor);
+
+            enemySpawnPointsThisSection++;
         }
 
         spawnedSections.Add(sectionIndex, newSection);

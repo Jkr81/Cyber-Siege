@@ -894,7 +894,7 @@ MonoBehaviour:
   curveSideAmount: 10
   curveUpAmount: 4
   curveLength: 250
-  timeToMaxDifficulty: 180
+  timeToMaxDifficulty: 200
   introEndDistance: 350
   combatEndDistance: 900
   chaosEndDistance: 1500

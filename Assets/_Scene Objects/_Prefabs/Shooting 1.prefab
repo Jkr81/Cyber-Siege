@@ -276,6 +276,10 @@ PrefabInstance:
       propertyPath: fireRate
       value: 0.7
       objectReference: {fileID: 0}
+    - target: {fileID: -8584755243846768256, guid: 31ff62ad4c6c65b40924caed5bbd909c, type: 3}
+      propertyPath: bulletDamagePrefab
+      value: 
+      objectReference: {fileID: 2624129111317718636, guid: 57010fc1b2c4d4149b0dbca77484fd26, type: 3}
     - target: {fileID: 2470496694693163555, guid: 31ff62ad4c6c65b40924caed5bbd909c, type: 3}
       propertyPath: m_LocalPosition.x
       value: -0.032000147
