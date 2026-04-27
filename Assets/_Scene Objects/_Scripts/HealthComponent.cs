@@ -14,8 +14,14 @@ namespace Ilumisoft.HealthSystem.UI
         [SerializeField] private float deathEffectDestroyTime = 3f;
 
         [Header("Kill Points")]
-        [SerializeField] private int defaultPointsOnKill = 100;
-        [SerializeField] private int redEnemyPointsOnKill = 250;
+        [SerializeField] private int defaultPointsOnKill = 50;
+        [SerializeField] private int redEnemyPointsOnKill = 125;
+
+        [Header("Point Scaling")]
+        [SerializeField] private bool scalePointsWithDifficulty = true;
+        [SerializeField] private float minDifficulty = 1f;
+        [SerializeField] private float maxDifficulty = 3f;
+        [SerializeField] private float maxPointMultiplier = 1.5f;
 
         private bool isDead = false;
 
@@ -56,14 +62,42 @@ namespace Ilumisoft.HealthSystem.UI
 
             if (GameManager.Instance != null)
             {
-                int points = defaultPointsOnKill;
+                int basePoints = defaultPointsOnKill;
 
                 if (gameObject.CompareTag("RedEnemy"))
                 {
-                    points = redEnemyPointsOnKill;
+                    basePoints = redEnemyPointsOnKill;
                 }
 
-                GameManager.Instance.AddKill(points);
+                int finalPoints = basePoints;
+
+                if (scalePointsWithDifficulty)
+                {
+                    float difficulty = 1f;
+
+                    ShipFollowHybrid ship = FindFirstObjectByType<ShipFollowHybrid>();
+
+                    if (ship != null)
+                    {
+                        difficulty = ship.DifficultyMultiplier;
+                    }
+
+                    float normalized = Mathf.InverseLerp(
+                        minDifficulty,
+                        maxDifficulty,
+                        difficulty
+                    );
+
+                    float multiplier = Mathf.Lerp(
+                        1f,
+                        maxPointMultiplier,
+                        normalized
+                    );
+
+                    finalPoints = Mathf.RoundToInt(basePoints * multiplier);
+                }
+
+                GameManager.Instance.AddKill(finalPoints);
             }
             else
             {

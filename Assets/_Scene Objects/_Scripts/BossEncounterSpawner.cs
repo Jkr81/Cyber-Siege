@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using Ilumisoft.HealthSystem.UI;
 
 public class BossEncounterSpawner : MonoBehaviour
 {
@@ -31,6 +32,9 @@ public class BossEncounterSpawner : MonoBehaviour
     [SerializeField] private bool scaleEncounterIn = true;
     [SerializeField] private float scaleInDuration = 2f;
 
+    [Header("Destroy After Boss Dies")]
+    [SerializeField] private float asteroidDestroyDelay = 1.5f;
+
     private Vector3 startPosition;
     private bool spawned = false;
 
@@ -38,6 +42,9 @@ public class BossEncounterSpawner : MonoBehaviour
     {
         if (player == null && Camera.main != null)
             player = Camera.main.transform;
+
+        if (shipMovement == null)
+            shipMovement = FindFirstObjectByType<ShipFollowHybrid>();
 
         if (player != null)
             startPosition = player.position;
@@ -58,20 +65,33 @@ public class BossEncounterSpawner : MonoBehaviour
     {
         spawned = true;
 
-        Vector3 basePosition = player.position + player.forward * spawnInFrontOfPlayer;
+        Vector3 forwardDirection = shipMovement != null
+            ? shipMovement.transform.forward
+            : player.forward;
+
+        Vector3 basePosition = player.position + forwardDirection * spawnInFrontOfPlayer;
         Vector3 asteroidPosition = basePosition + asteroidOffset;
 
-        GameObject asteroid = Instantiate(bossAsteroidPrefab, asteroidPosition, Quaternion.identity);
+        GameObject asteroid = Instantiate(
+            bossAsteroidPrefab,
+            asteroidPosition,
+            Quaternion.identity
+        );
 
         Vector3 bossPosition = asteroid.transform.position + bossOffsetOnAsteroid;
+
+        Quaternion bossRotation = Quaternion.LookRotation(player.position - bossPosition);
 
         GameObject boss = Instantiate(
             bossPrefab,
             bossPosition,
-            Quaternion.LookRotation(-player.forward)
+            bossRotation
         );
 
         boss.transform.SetParent(asteroid.transform, true);
+
+        BossEncounterCleanup cleanup = asteroid.AddComponent<BossEncounterCleanup>();
+        cleanup.Setup(boss, asteroidDestroyDelay);
 
         if (scaleEncounterIn)
             StartCoroutine(ScaleInEncounter(asteroid, boss, scaleInDuration));
@@ -138,5 +158,47 @@ public class BossAsteroidMover : MonoBehaviour
     {
         float xOffset = Mathf.Sin(Time.time * moveSpeed) * moveAmount;
         transform.position = startPosition + Vector3.right * xOffset;
+    }
+}
+
+public class BossEncounterCleanup : MonoBehaviour
+{
+    private GameObject boss;
+    private HealthComponent bossHealth;
+    private float destroyDelay;
+    private bool destroying = false;
+
+    public void Setup(GameObject bossObject, float delay)
+    {
+        boss = bossObject;
+        destroyDelay = delay;
+
+        if (boss != null)
+            bossHealth = boss.GetComponentInChildren<HealthComponent>();
+    }
+
+    private void Update()
+    {
+        if (destroying) return;
+
+        if (boss == null)
+        {
+            StartCoroutine(DestroyAsteroid());
+            return;
+        }
+
+        if (bossHealth != null && bossHealth.CurrentHealth <= 0f)
+        {
+            StartCoroutine(DestroyAsteroid());
+        }
+    }
+
+    private IEnumerator DestroyAsteroid()
+    {
+        destroying = true;
+
+        yield return new WaitForSeconds(destroyDelay);
+
+        Destroy(gameObject);
     }
 }

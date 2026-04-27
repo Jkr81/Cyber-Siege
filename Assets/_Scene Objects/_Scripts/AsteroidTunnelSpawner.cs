@@ -18,6 +18,7 @@ public class AsteroidTunnelSpawner : MonoBehaviour
 
     [Header("Progression Timer")]
     [SerializeField] private float timeToMaxDifficulty = 180f;
+    [SerializeField] private float enemyStartDelay = 5f;
     private float runTimer = 0f;
 
     [Header("Distance Zones")]
@@ -294,7 +295,8 @@ public class AsteroidTunnelSpawner : MonoBehaviour
                     enemyFacesPlayer,
                     fadeEnemyOnDespawn,
                     enemyFadeTime,
-                    enemyAimHeightOffset
+                    enemyAimHeightOffset,
+                    enemyStartDelay
                 );
 
                 enemySpawnPointsThisSection++;
@@ -333,7 +335,8 @@ public class AsteroidTunnelSpawner : MonoBehaviour
                 enemyFacesPlayer,
                 fadeEnemyOnDespawn,
                 enemyFadeTime,
-                enemyAimHeightOffset
+                enemyAimHeightOffset,
+                enemyStartDelay
             );
 
             if (enableAsteroidGlow)
@@ -503,6 +506,7 @@ public class AsteroidTunnelSpawner : MonoBehaviour
         private bool isDespawning;
         private bool hasSpawnedOnce;
         private float aimHeightOffset;
+        private float startDelay;
 
         public void Initialize(
             GameObject prefab,
@@ -512,7 +516,8 @@ public class AsteroidTunnelSpawner : MonoBehaviour
             bool facePlayer,
             bool fade,
             float fadeDuration,
-            float targetHeightOffset
+            float targetHeightOffset,
+            float enemyDelay
         )
         {
             enemyPrefab = prefab;
@@ -524,6 +529,7 @@ public class AsteroidTunnelSpawner : MonoBehaviour
             fadeOnDespawn = fade;
             fadeTime = fadeDuration;
             aimHeightOffset = targetHeightOffset;
+            startDelay = enemyDelay;
 
             hasSpawnedOnce = false;
             isDespawning = false;
@@ -533,6 +539,9 @@ public class AsteroidTunnelSpawner : MonoBehaviour
         public void ManualUpdate()
         {
             if (enemyPrefab == null || player == null || isDespawning)
+                return;
+
+            if (Time.timeSinceLevelLoad < startDelay)
                 return;
 
             float distanceToPlayer = Vector3.Distance(transform.position, player.position);

@@ -12,8 +12,8 @@ GameObject:
   - component: {fileID: 7790929883255341481}
   - component: {fileID: -3997425291790422499}
   - component: {fileID: 4717932523746075622}
-  - component: {fileID: -2577018493715052198}
   - component: {fileID: 8565856479961092187}
+  - component: {fileID: -8550151958988811275}
   m_Layer: 12
   m_Name: Enemy Bullet
   m_TagString: Untagged
@@ -99,25 +99,7 @@ Rigidbody:
   m_IsKinematic: 0
   m_Interpolate: 0
   m_Constraints: 0
-  m_CollisionDetection: 2
---- !u!114 &-2577018493715052198
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2624129111317718636}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1d84097a1c6214807a65ba9f01343061, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::EnemyBulletDamage
-  startDamage: 250
-  maxDamage: 250
-  distanceToMaxDamage: 1500
-  lifetime: 5
-  impactEffect: {fileID: 1000013947318026, guid: d4bb44e0d96319e42a338ba7d4781d19, type: 3}
-  impactDestroyTime: 2
+  m_CollisionDetection: 1
 --- !u!135 &8565856479961092187
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -137,8 +119,25 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 0.35154188
-  m_Center: {x: -0.011927009, y: 0.0021693408, z: 0.04707572}
+  m_Radius: 0.39049765
+  m_Center: {x: -0.0015236437, y: 0.0021693408, z: 0.04707572}
+--- !u!114 &-8550151958988811275
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2624129111317718636}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7e77413f44574ef3825cdba2b12220c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BossBulletDamage
+  damage: 100
+  lifetime: 4
+  impactEffect: {fileID: 1000013947318026, guid: d4bb44e0d96319e42a338ba7d4781d19, type: 3}
+  impactDestroyTime: 2
+  ignoreNonPlayerHits: 1
 --- !u!1 &2897808304556876308
 GameObject:
   m_ObjectHideFlags: 0

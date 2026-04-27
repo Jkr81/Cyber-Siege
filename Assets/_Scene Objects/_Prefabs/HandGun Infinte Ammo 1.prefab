@@ -284,7 +284,6 @@ GameObject:
   - component: {fileID: 2470496694693163555}
   - component: {fileID: 2470496694693163557}
   - component: {fileID: 2470496694693163553}
-  - component: {fileID: -8807306669810657597}
   - component: {fileID: -8584755243846768256}
   m_Layer: 0
   m_Name: HandGun Infinte Ammo 1
@@ -396,18 +395,6 @@ MonoBehaviour:
     m_Reference: {fileID: 0}
   MovingObject: {fileID: 2470496696086975514}
   endPosition: {fileID: 2470496694845373400}
---- !u!114 &-8807306669810657597
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2470496694693163740}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1887aab64a7b4b8e9403afbd3ed8ad9b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::MikeNspired.XRIStarterKit.IgnoreCharacterControllerCollider
 --- !u!114 &-8584755243846768256
 MonoBehaviour:
   m_ObjectHideFlags: 0

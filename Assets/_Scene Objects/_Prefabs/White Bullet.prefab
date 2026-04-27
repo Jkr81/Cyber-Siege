@@ -9,8 +9,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2592706618082784517}
-  - component: {fileID: 7790929883255341481}
-  - component: {fileID: -3997425291790422499}
   - component: {fileID: 4717932523746075622}
   - component: {fileID: -2577018493715052198}
   - component: {fileID: 8565856479961092187}
@@ -40,39 +38,6 @@ Transform:
   - {fileID: 4227411839109342633}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &7790929883255341481
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2624129111317718636}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1a2f2c58af6bfd148b2d366d64846a55, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  timeTillDestroy: 2
-  destroyAfterFrame: 0
-  startTimerOnAwake: 1
---- !u!114 &-3997425291790422499
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2624129111317718636}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2f996429cb5c48d4893590774355ba7b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  damage: 20
-  metalDecal: {fileID: 7561338667224050496, guid: b01d86ce0cf260642a372ef30b47f1fd, type: 3}
-  fleshDecal: {fileID: 7561338667224050496, guid: 200a697aec56ff04db3bed9b4380e9ff, type: 3}
-  woodDecal: {fileID: 1000011190285628, guid: beb3acff7ab73944fb8f470f24d74ed3, type: 3}
-  destroyOnCollision: 1
-  triggerDamage: 0
 --- !u!54 &4717932523746075622
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -113,7 +78,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyBulletDamage
   startDamage: 10
-  maxDamage: 25
+  maxDamage: 20
   distanceToMaxDamage: 1500
   lifetime: 5
   impactEffect: {fileID: 1000013947318026, guid: d4bb44e0d96319e42a338ba7d4781d19, type: 3}

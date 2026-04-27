@@ -8,7 +8,6 @@ public class EnemyAnimationGunTrigger : MonoBehaviour
     [SerializeField] private ProjectileWeapon gun;
 
     [Header("Aim Reference")]
-    [Tooltip("Assign the FirePoint / muzzle object here if you have one.")]
     [SerializeField] private Transform firePoint;
 
     [Header("Player Detection")]
@@ -16,8 +15,15 @@ public class EnemyAnimationGunTrigger : MonoBehaviour
     [SerializeField] private float detectionDistance = 60f;
     [SerializeField] private float chestHeightOffset = 1.2f;
 
+    [Header("Spawn Delay")]
+    [SerializeField] private float spawnEffectTime = 1.8f;
+    [SerializeField] private bool blockShootingDuringSpawn = true;
+
+    [Header("Optional Spawn Effect")]
+    [SerializeField] private GameObject spawnEffectPrefab;
+    [SerializeField] private float spawnEffectDestroyTime = 2.5f;
+
     [Header("Shooting")]
-    [Tooltip("Seconds between shots. Higher = slower. Lower = faster.")]
     [SerializeField] private float fireRate = 1.3f;
 
     [Header("Debug Aim Lines")]
@@ -26,9 +32,13 @@ public class EnemyAnimationGunTrigger : MonoBehaviour
 
     private Transform player;
     private float nextFireTime;
+    private float spawnTime;
+    private bool spawnedEffectPlayed = false;
 
     void Start()
     {
+        spawnTime = Time.time;
+
         if (animator == null)
             animator = GetComponentInParent<Animator>();
 
@@ -52,26 +62,40 @@ public class EnemyAnimationGunTrigger : MonoBehaviour
         if (animator != null)
             animator.enabled = false;
 
-        nextFireTime = Time.time + Random.Range(0f, fireRate);
+        nextFireTime = Time.time + spawnEffectTime + Random.Range(0f, fireRate);
     }
 
     void Update()
     {
+        bool spawning = Time.time - spawnTime < spawnEffectTime;
+
+        if (!spawnedEffectPlayed)
+        {
+            spawnedEffectPlayed = true;
+
+            if (spawnEffectPrefab != null)
+            {
+                GameObject effect = Instantiate(
+                    spawnEffectPrefab,
+                    transform.position,
+                    Quaternion.identity
+                );
+
+                Destroy(effect, spawnEffectDestroyTime);
+            }
+        }
+
         if (player == null || gun == null) return;
 
         Transform aimOrigin = firePoint != null ? firePoint : transform;
 
         Vector3 targetPoint = player.position + Vector3.up * chestHeightOffset;
         float distance = Vector3.Distance(aimOrigin.position, targetPoint);
-
         Vector3 aimDirection = targetPoint - aimOrigin.position;
 
         if (showAimDebug)
         {
-            // GREEN = exact line to your chest
             Debug.DrawLine(aimOrigin.position, targetPoint, Color.green);
-
-            // RED = where the FirePoint is actually aiming
             Debug.DrawRay(aimOrigin.position, aimOrigin.forward * debugRayLength, Color.red);
         }
 
@@ -83,7 +107,7 @@ public class EnemyAnimationGunTrigger : MonoBehaviour
             return;
         }
 
-        if (animator != null && !animator.enabled)
+        if (animator != null && !animator.enabled && !spawning)
             animator.enabled = true;
 
         if (aimDirection.sqrMagnitude > 0.001f)
@@ -92,12 +116,15 @@ public class EnemyAnimationGunTrigger : MonoBehaviour
             aimOrigin.rotation = aimRotation;
         }
 
+        if (blockShootingDuringSpawn && spawning)
+            return;
+
         if (Time.time >= nextFireTime)
         {
             gun.ShootFromAnimation();
 
             float randomOffset = Random.Range(0.8f, 1.2f);
-            nextFireTime = Time.time + (fireRate * randomOffset);
+            nextFireTime = Time.time + fireRate * randomOffset;
         }
     }
 }

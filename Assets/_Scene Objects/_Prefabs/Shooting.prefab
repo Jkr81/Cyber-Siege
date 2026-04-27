@@ -17,6 +17,14 @@ PrefabInstance:
       value: 1.2
       objectReference: {fileID: 0}
     - target: {fileID: -8584755243846768256, guid: 31ff62ad4c6c65b40924caed5bbd909c, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: -8584755243846768256, guid: 31ff62ad4c6c65b40924caed5bbd909c, type: 3}
+      propertyPath: emissionStrength
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: -8584755243846768256, guid: 31ff62ad4c6c65b40924caed5bbd909c, type: 3}
       propertyPath: bulletDamagePrefab
       value: 
       objectReference: {fileID: 2624129111317718636, guid: 9f4bf21a112af234da4451493e741800, type: 3}
@@ -160,6 +168,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: ad54dad9f077b45ee9cdf9d0988977a2, type: 3}
       insertIndex: -1
       addedObject: {fileID: 6181722970264554135}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: ad54dad9f077b45ee9cdf9d0988977a2, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: -6753250544868483514}
   m_SourcePrefab: {fileID: 100100000, guid: ad54dad9f077b45ee9cdf9d0988977a2, type: 3}
 --- !u!4 &2817077550699034809 stripped
 Transform:
@@ -253,6 +264,23 @@ MonoBehaviour:
   detectionRange: 30
   animator: {fileID: 4720691924559745619}
   shootingBoolName: IsShooting
+--- !u!114 &-6753250544868483514
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3633419741017831968}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b7861c96b2ad04f3887a8a621478ec17, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemySpawnEffect
+  spawnEffectPrefab: {fileID: 0}
+  destroyAfter: 2.5
+  useScalePop: 1
+  popDuration: 0.3
+  startScaleMultiplier: 0.7
 --- !u!4 &4118349085762789530 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: ad54dad9f077b45ee9cdf9d0988977a2, type: 3}

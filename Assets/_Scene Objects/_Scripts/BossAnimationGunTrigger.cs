@@ -15,19 +15,16 @@ public class BossAnimationGunTrigger : MonoBehaviour
     [SerializeField] private float detectionDistance = 300f;
 
     [Header("Prediction Aim")]
-    [SerializeField] private bool usePrediction = true;
-    [SerializeField] private float predictionAmount = 0.2f;
+    [SerializeField] private bool usePrediction = false;
+    [SerializeField] private float predictionAmount = 0.1f;
 
     [Header("Boss Shooting")]
-    [SerializeField] private float fireRate = 1.8f;
-    [SerializeField] private float animationFireDelay = 0.35f;
+    [SerializeField] private float fireRate = 1.2f;
+    [SerializeField] private float animationFireDelay = 0.25f;
 
-    [Header("Aim Check")]
-    [SerializeField] private bool onlyShootWhenAimed = true;
-    [SerializeField, Range(0.8f, 1f)] private float aimAccuracy = 0.97f;
-
-    [Header("ProjectileWeapon Fire Method")]
-    [SerializeField] private string shootMethodName = "Shoot";
+    [Header("Debug Aim Line")]
+    [SerializeField] private bool showDebugLine = true;
+    [SerializeField] private float debugLineDuration = 0.1f;
 
     [Header("Animation")]
     [SerializeField] private string shootingBoolName = "IsShooting";
@@ -46,6 +43,9 @@ public class BossAnimationGunTrigger : MonoBehaviour
         if (animator == null)
             animator = GetComponentInParent<Animator>();
 
+        if (firePoint == null && gun != null)
+            firePoint = gun.transform;
+
         if (firePoint == null)
             firePoint = transform;
 
@@ -53,6 +53,8 @@ public class BossAnimationGunTrigger : MonoBehaviour
 
         if (playerTarget != null)
             lastTargetPosition = playerTarget.position;
+
+        nextFireTime = Time.time + fireRate;
     }
 
     private void Update()
@@ -69,8 +71,15 @@ public class BossAnimationGunTrigger : MonoBehaviour
         UpdateTargetVelocity();
 
         Vector3 targetPosition = GetTargetPosition();
-        Vector3 directionToPlayer = (targetPosition - firePoint.position).normalized;
-        float distance = Vector3.Distance(firePoint.position, targetPosition);
+        Vector3 shootOrigin = firePoint.position;
+        Vector3 directionToPlayer = (targetPosition - shootOrigin).normalized;
+        float distance = Vector3.Distance(shootOrigin, targetPosition);
+
+        // LONG LINE: firePoint/gun to player. Ignores colliders visually.
+        if (showDebugLine)
+        {
+            Debug.DrawLine(shootOrigin, targetPosition, Color.green, debugLineDuration);
+        }
 
         if (distance > detectionDistance)
         {
@@ -82,10 +91,7 @@ public class BossAnimationGunTrigger : MonoBehaviour
 
         if (Time.time >= nextFireTime && !isWaitingToFire)
         {
-            if (!onlyShootWhenAimed || IsAimedAtPlayer(directionToPlayer))
-            {
-                StartCoroutine(FireAfterAnimationDelay());
-            }
+            StartCoroutine(FireAfterAnimationDelay());
         }
     }
 
@@ -133,16 +139,10 @@ public class BossAnimationGunTrigger : MonoBehaviour
         transform.rotation = lookRotation;
     }
 
-    private bool IsAimedAtPlayer(Vector3 directionToPlayer)
-    {
-        float dot = Vector3.Dot(firePoint.forward, directionToPlayer);
-
-        return dot >= aimAccuracy;
-    }
-
     private IEnumerator FireAfterAnimationDelay()
     {
         isWaitingToFire = true;
+        nextFireTime = Time.time + fireRate;
 
         SetShootingAnimation(true);
 
@@ -151,9 +151,8 @@ public class BossAnimationGunTrigger : MonoBehaviour
         FireGun();
 
         yield return new WaitForSeconds(0.1f);
-        SetShootingAnimation(false);
 
-        nextFireTime = Time.time + fireRate;
+        SetShootingAnimation(false);
         isWaitingToFire = false;
     }
 
@@ -161,10 +160,7 @@ public class BossAnimationGunTrigger : MonoBehaviour
     {
         if (gun == null) return;
 
-        gun.gameObject.SendMessage(
-            shootMethodName,
-            SendMessageOptions.DontRequireReceiver
-        );
+        gun.FireGun();
     }
 
     private void SetShootingAnimation(bool value)

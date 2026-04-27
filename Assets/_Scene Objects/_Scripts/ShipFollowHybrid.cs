@@ -27,6 +27,15 @@ public class ShipFollowHybrid : MonoBehaviour
 
     [Header("Turning")]
     [SerializeField] private float turnSpeed = 90f;
+    [SerializeField] private bool allowTurningDuringBoss = false;
+
+    [Header("Engine Audio")]
+    [SerializeField] private AudioSource engineAudio;
+    [SerializeField] private bool playEngineOnStart = true;
+    [SerializeField] private float minEnginePitch = 0.8f;
+    [SerializeField] private float maxEnginePitch = 1.4f;
+    [SerializeField] private float normalEngineVolume = 0.35f;
+    [SerializeField] private float bossEngineVolume = 0.2f;
 
     private float currentForwardSpeed;
     private float forwardDistance;
@@ -63,6 +72,14 @@ public class ShipFollowHybrid : MonoBehaviour
     {
         startPosition = transform.position;
         currentForwardSpeed = startForwardSpeed;
+
+        if (engineAudio != null)
+        {
+            engineAudio.loop = true;
+
+            if (playEngineOnStart && !engineAudio.isPlaying)
+                engineAudio.Play();
+        }
     }
 
     private void Update()
@@ -80,14 +97,16 @@ public class ShipFollowHybrid : MonoBehaviour
             forwardDistance += currentForwardSpeed * Time.deltaTime;
         }
 
-        if (moveInput != Vector2.zero)
+        if (moveInput.x != 0f)
         {
-            tunnelOffset += moveInput * moveSpeed * Time.deltaTime;
+            tunnelOffset.x += moveInput.x * moveSpeed * Time.deltaTime;
         }
         else
         {
-            tunnelOffset = Vector2.Lerp(tunnelOffset, Vector2.zero, returnToCenterSpeed * Time.deltaTime);
+            tunnelOffset.x = Mathf.Lerp(tunnelOffset.x, 0f, returnToCenterSpeed * Time.deltaTime);
         }
+
+        tunnelOffset.y = 0f;
 
         tunnelOffset = Vector2.ClampMagnitude(tunnelOffset, maxTunnelRadius);
 
@@ -95,16 +114,30 @@ public class ShipFollowHybrid : MonoBehaviour
 
         Vector3 newPosition =
             center +
-            Vector3.right * tunnelOffset.x +
-            Vector3.up * tunnelOffset.y;
+            Vector3.right * tunnelOffset.x;
 
         transform.position = newPosition;
 
-        float yawAmount = turnInput.x * turnSpeed * Time.deltaTime;
-        transform.Rotate(0f, yawAmount, 0f, Space.World);
+        if (!bossPaused || allowTurningDuringBoss)
+        {
+            float yawAmount = turnInput.x * turnSpeed * Time.deltaTime;
+            transform.Rotate(0f, yawAmount, 0f, Space.World);
+        }
 
         DifficultyMultiplier = 1f + (forwardDistance / 50f);
         DifficultyMultiplier = Mathf.Clamp(DifficultyMultiplier, 1f, 3f);
+
+        UpdateEngineAudio();
+    }
+
+    private void UpdateEngineAudio()
+    {
+        if (engineAudio == null) return;
+
+        float speedPercent = Mathf.InverseLerp(startForwardSpeed, maxForwardSpeed, currentForwardSpeed);
+
+        engineAudio.pitch = Mathf.Lerp(minEnginePitch, maxEnginePitch, speedPercent);
+        engineAudio.volume = bossPaused ? bossEngineVolume : normalEngineVolume;
     }
 
     private Vector3 GetTunnelCenter(float distance)

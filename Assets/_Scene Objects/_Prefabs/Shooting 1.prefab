@@ -61,6 +61,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 2100000, guid: b872710b89e45204e9dfc253c2cf770a, type: 2}
     - target: {fileID: 6148737315974723067, guid: ad54dad9f077b45ee9cdf9d0988977a2, type: 3}
+      propertyPath: m_DynamicOccludee
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6148737315974723067, guid: ad54dad9f077b45ee9cdf9d0988977a2, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: -5898264388660115775, guid: 7646f6a1b66334b418f6487c05501e2e, type: 3}
@@ -86,6 +90,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: ad54dad9f077b45ee9cdf9d0988977a2, type: 3}
       insertIndex: -1
       addedObject: {fileID: 4584230033801083070}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: ad54dad9f077b45ee9cdf9d0988977a2, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: -7475048529572925206}
   m_SourcePrefab: {fileID: 100100000, guid: ad54dad9f077b45ee9cdf9d0988977a2, type: 3}
 --- !u!4 &725134017015229329 stripped
 Transform:
@@ -184,6 +191,23 @@ MonoBehaviour:
   detectionRange: 30
   animator: {fileID: 1655712063850707286}
   shootingBoolName: IsShooting
+--- !u!114 &-7475048529572925206
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2262201813364664584}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b7861c96b2ad04f3887a8a621478ec17, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemySpawnEffect
+  spawnEffectPrefab: {fileID: 0}
+  destroyAfter: 2.5
+  useScalePop: 1
+  popDuration: 0.3
+  startScaleMultiplier: 0.7
 --- !u!1001 &2397108871469682480
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -281,6 +305,10 @@ PrefabInstance:
     - target: {fileID: -8584755243846768256, guid: 31ff62ad4c6c65b40924caed5bbd909c, type: 3}
       propertyPath: fireRate
       value: 0.7
+      objectReference: {fileID: 0}
+    - target: {fileID: -8584755243846768256, guid: 31ff62ad4c6c65b40924caed5bbd909c, type: 3}
+      propertyPath: emissionStrength
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: -8584755243846768256, guid: 31ff62ad4c6c65b40924caed5bbd909c, type: 3}
       propertyPath: bulletDamagePrefab

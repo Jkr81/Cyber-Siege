@@ -10,8 +10,6 @@ GameObject:
   m_Component:
   - component: {fileID: 2592706618082784517}
   - component: {fileID: 1277569234665110449}
-  - component: {fileID: 7790929883255341481}
-  - component: {fileID: -3997425291790422499}
   - component: {fileID: 3983679391731213280}
   - component: {fileID: -2531188527484847661}
   m_Layer: 12
@@ -66,39 +64,6 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 112
   m_CollisionDetection: 2
---- !u!114 &7790929883255341481
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2624129111317718636}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1a2f2c58af6bfd148b2d366d64846a55, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  timeTillDestroy: 2
-  destroyAfterFrame: 0
-  startTimerOnAwake: 1
---- !u!114 &-3997425291790422499
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2624129111317718636}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2f996429cb5c48d4893590774355ba7b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  damage: 15
-  metalDecal: {fileID: 7561338667224050496, guid: b01d86ce0cf260642a372ef30b47f1fd, type: 3}
-  fleshDecal: {fileID: 7561338667224050496, guid: 200a697aec56ff04db3bed9b4380e9ff, type: 3}
-  woodDecal: {fileID: 1000011190285628, guid: beb3acff7ab73944fb8f470f24d74ed3, type: 3}
-  destroyOnCollision: 1
-  triggerDamage: 0
 --- !u!135 &3983679391731213280
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -132,7 +97,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6555c8195952c46b69298ee300e9ed10, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ProjectileDamage
-  damage: 10
+  damage: 15
   destroyOnHit: 1
   impactEffect: {fileID: 3901148745110949095, guid: 9192e08d2f3857b468cb7452ab4bbdb9, type: 3}
   impactDestroyTime: 2
