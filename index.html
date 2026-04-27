@@ -1,0 +1,1012 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CYBER SIEGE — VR Documentation</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Share+Tech+Mono&family=Rajdhani:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #020510;
+    --bg2: #050d1f;
+    --cyan: #00f5ff;
+    --cyan-dim: #00a8b5;
+    --magenta: #ff0080;
+    --gold: #ffd700;
+    --text: #c8d8f0;
+    --text-dim: #6a7f9a;
+    --card: rgba(0, 245, 255, 0.04);
+    --border: rgba(0, 245, 255, 0.15);
+    --glow: 0 0 20px rgba(0,245,255,0.3);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    overflow-x: hidden;
+    cursor: none;
+  }
+
+  /* CUSTOM CURSOR */
+  .cursor {
+    width: 16px; height: 16px;
+    border: 1.5px solid var(--cyan);
+    border-radius: 50%;
+    position: fixed;
+    pointer-events: none;
+    z-index: 9999;
+    transform: translate(-50%, -50%);
+    transition: transform 0.1s, border-color 0.2s;
+    mix-blend-mode: screen;
+  }
+  .cursor::after {
+    content: '';
+    width: 4px; height: 4px;
+    background: var(--cyan);
+    border-radius: 50%;
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%,-50%);
+  }
+
+  /* STARFIELD */
+  #stars {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 18px 48px;
+    background: rgba(2,5,16,0.85);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .nav-logo {
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 900;
+    font-size: 1.1rem;
+    letter-spacing: 0.2em;
+    color: var(--cyan);
+    text-shadow: var(--glow);
+  }
+  .nav-logo span { color: var(--magenta); }
+
+  nav ul {
+    display: flex;
+    gap: 36px;
+    list-style: none;
+  }
+  nav ul a {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.18em;
+    color: var(--text-dim);
+    text-decoration: none;
+    text-transform: uppercase;
+    transition: color 0.2s, text-shadow 0.2s;
+  }
+  nav ul a:hover {
+    color: var(--cyan);
+    text-shadow: var(--glow);
+  }
+
+  /* CONTENT WRAPPER */
+  .content {
+    position: relative;
+    z-index: 1;
+  }
+
+  /* HERO */
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 120px 40px 60px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero-grid {
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,245,255,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,245,255,0.04) 1px, transparent 1px);
+    background-size: 60px 60px;
+    animation: gridScroll 20s linear infinite;
+  }
+  @keyframes gridScroll {
+    from { transform: translateY(0); }
+    to { transform: translateY(60px); }
+  }
+
+  .hero-badge {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.3em;
+    color: var(--magenta);
+    text-transform: uppercase;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    animation: fadeUp 0.8s ease both;
+  }
+  .hero-badge::before, .hero-badge::after {
+    content: '';
+    width: 40px; height: 1px;
+    background: var(--magenta);
+    opacity: 0.6;
+  }
+
+  .hero-title {
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 900;
+    font-size: clamp(3.5rem, 10vw, 8rem);
+    letter-spacing: 0.06em;
+    line-height: 0.9;
+    color: #fff;
+    text-shadow: 0 0 60px rgba(0,245,255,0.4), 0 0 120px rgba(0,245,255,0.15);
+    animation: fadeUp 0.8s 0.1s ease both;
+    margin-bottom: 8px;
+  }
+  .hero-title .accent { color: var(--cyan); }
+  .hero-title .line2 {
+    display: block;
+    font-size: clamp(2rem, 5vw, 4rem);
+    color: var(--magenta);
+    text-shadow: 0 0 40px rgba(255,0,128,0.5);
+    letter-spacing: 0.25em;
+  }
+
+  .hero-sub {
+    font-size: 1.2rem;
+    font-weight: 300;
+    letter-spacing: 0.1em;
+    color: var(--text-dim);
+    margin: 28px 0 48px;
+    max-width: 600px;
+    animation: fadeUp 0.8s 0.2s ease both;
+  }
+
+  .hero-tags {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    justify-content: center;
+    animation: fadeUp 0.8s 0.3s ease both;
+  }
+  .tag {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.15em;
+    padding: 7px 18px;
+    border: 1px solid var(--border);
+    color: var(--cyan-dim);
+    text-transform: uppercase;
+    position: relative;
+    clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
+    background: rgba(0,245,255,0.05);
+    transition: background 0.2s, color 0.2s;
+  }
+  .tag:hover { background: rgba(0,245,255,0.12); color: var(--cyan); }
+
+  /* ROBOT DECORATIONS */
+  .robot-left, .robot-right {
+    position: absolute;
+    bottom: 0;
+    width: 220px;
+    opacity: 0.18;
+    animation: robotFloat 6s ease-in-out infinite;
+  }
+  .robot-left { left: 40px; animation-delay: 0s; }
+  .robot-right { right: 40px; animation-delay: -3s; transform: scaleX(-1); }
+  @keyframes robotFloat {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-18px); }
+  }
+  .robot-right { animation-name: robotFloatR; }
+  @keyframes robotFloatR {
+    0%, 100% { transform: scaleX(-1) translateY(0); }
+    50% { transform: scaleX(-1) translateY(-18px); }
+  }
+
+  /* SCROLL INDICATOR */
+  .scroll-hint {
+    position: absolute;
+    bottom: 32px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    animation: fadeUp 1s 0.6s ease both;
+  }
+  .scroll-hint span {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.25em;
+    color: var(--text-dim);
+  }
+  .scroll-bar {
+    width: 1px; height: 48px;
+    background: linear-gradient(to bottom, var(--cyan), transparent);
+    animation: scrollDrop 2s ease-in-out infinite;
+  }
+  @keyframes scrollDrop {
+    0% { transform: scaleY(0); transform-origin: top; opacity: 1; }
+    50% { transform: scaleY(1); transform-origin: top; opacity: 1; }
+    51% { transform: scaleY(1); transform-origin: bottom; opacity: 1; }
+    100% { transform: scaleY(0); transform-origin: bottom; opacity: 0; }
+  }
+
+  /* SECTION */
+  section {
+    padding: 96px 0;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding-left: 48px;
+    padding-right: 48px;
+  }
+
+  .section-label {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.35em;
+    color: var(--magenta);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .section-label::after {
+    content: '';
+    flex: 1;
+    max-width: 80px;
+    height: 1px;
+    background: var(--magenta);
+    opacity: 0.4;
+  }
+
+  .section-title {
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 700;
+    font-size: clamp(1.6rem, 3vw, 2.4rem);
+    letter-spacing: 0.06em;
+    color: #fff;
+    margin-bottom: 48px;
+    text-shadow: 0 0 30px rgba(0,245,255,0.2);
+  }
+
+  /* INTENT GRID */
+  .intent-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    margin-bottom: 64px;
+  }
+  .intent-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    padding: 32px 28px;
+    position: relative;
+    clip-path: polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 16px 100%, 0 calc(100% - 16px));
+    transition: border-color 0.3s, background 0.3s;
+  }
+  .intent-card:hover {
+    border-color: var(--cyan);
+    background: rgba(0,245,255,0.08);
+  }
+  .intent-card .ic-icon {
+    font-size: 2.4rem;
+    margin-bottom: 16px;
+    display: block;
+    filter: drop-shadow(0 0 8px rgba(0,245,255,0.5));
+  }
+  .intent-card h3 {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    color: var(--cyan);
+    margin-bottom: 10px;
+  }
+  .intent-card p {
+    font-size: 0.92rem;
+    color: var(--text-dim);
+    font-weight: 300;
+    line-height: 1.7;
+  }
+
+  /* MECHANICS */
+  .mechanic-block {
+    margin-bottom: 48px;
+    border-left: 2px solid var(--border);
+    padding-left: 32px;
+    position: relative;
+    transition: border-color 0.3s;
+  }
+  .mechanic-block:hover { border-color: var(--cyan); }
+  .mechanic-block::before {
+    content: '';
+    width: 10px; height: 10px;
+    border: 2px solid var(--cyan);
+    border-radius: 50%;
+    position: absolute;
+    left: -6px;
+    top: 4px;
+    background: var(--bg);
+    box-shadow: 0 0 8px var(--cyan);
+  }
+
+  .mechanic-title {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    color: #fff;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .mechanic-title .emoji {
+    font-size: 1.4rem;
+    filter: drop-shadow(0 0 6px rgba(0,245,255,0.4));
+  }
+
+  .mechanic-block ul {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .mechanic-block ul li {
+    font-size: 0.95rem;
+    color: var(--text-dim);
+    padding-left: 20px;
+    position: relative;
+    font-weight: 300;
+  }
+  .mechanic-block ul li::before {
+    content: '›';
+    position: absolute;
+    left: 0;
+    color: var(--cyan);
+    font-size: 1.1rem;
+    line-height: 1.4;
+  }
+
+  /* CHALLENGES */
+  .challenge-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+  }
+  .challenge-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    padding: 28px;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.3s, transform 0.3s;
+  }
+  .challenge-card:hover {
+    border-color: var(--magenta);
+    transform: translateY(-2px);
+  }
+  .challenge-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--magenta), transparent);
+  }
+  .challenge-card h3 {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    color: #fff;
+    margin-bottom: 14px;
+  }
+  .problem-label, .solution-label {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.2em;
+    margin-bottom: 6px;
+    margin-top: 14px;
+    text-transform: uppercase;
+  }
+  .problem-label { color: var(--magenta); }
+  .solution-label { color: var(--cyan); }
+  .challenge-card p {
+    font-size: 0.88rem;
+    color: var(--text-dim);
+    font-weight: 300;
+    line-height: 1.65;
+  }
+
+  /* ACCOMPLISHMENTS */
+  .accomplish-list {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  .accomplish-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    padding: 20px 24px;
+    transition: border-color 0.3s, background 0.3s;
+  }
+  .accomplish-item:hover {
+    border-color: var(--gold);
+    background: rgba(255,215,0,0.04);
+  }
+  .accomplish-check {
+    width: 24px; height: 24px;
+    border: 1.5px solid var(--gold);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: 0.75rem;
+    color: var(--gold);
+    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+    background: rgba(255,215,0,0.08);
+  }
+  .accomplish-item p {
+    font-size: 0.92rem;
+    color: var(--text);
+    font-weight: 400;
+    line-height: 1.5;
+  }
+
+  /* STATUS + NEXT */
+  .status-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+    align-items: start;
+  }
+  .status-box {
+    background: var(--card);
+    border: 1px solid var(--border);
+    padding: 36px;
+    position: relative;
+    clip-path: polygon(0 0, calc(100% - 20px) 0, 100% 20px, 100% 100%, 0 100%);
+  }
+  .status-box h3 {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    color: var(--cyan);
+    margin-bottom: 20px;
+  }
+  .status-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+    font-size: 0.92rem;
+    color: var(--text-dim);
+    font-weight: 300;
+  }
+  .status-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--cyan);
+    box-shadow: 0 0 8px var(--cyan);
+    flex-shrink: 0;
+    animation: pulse 2s ease-in-out infinite;
+  }
+  .status-dot.gold { background: var(--gold); box-shadow: 0 0 8px var(--gold); animation-delay: -0.5s; }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.7); }
+  }
+
+  .next-list { list-style: none; }
+  .next-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    margin-bottom: 16px;
+    font-size: 0.95rem;
+    color: var(--text-dim);
+    font-weight: 300;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  .next-list li:last-child { border-bottom: none; margin-bottom: 0; }
+  .next-num {
+    font-family: 'Orbitron', monospace;
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: var(--magenta);
+    background: rgba(255,0,128,0.1);
+    border: 1px solid rgba(255,0,128,0.3);
+    width: 26px; height: 26px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+  }
+
+  /* DIVIDER */
+  .divider {
+    width: 100%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border), transparent);
+    margin: 0 auto;
+    max-width: 1100px;
+    padding: 0 48px;
+  }
+
+  /* FOOTER */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 48px;
+    text-align: center;
+    position: relative;
+  }
+  footer .foot-logo {
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 900;
+    font-size: 1.5rem;
+    letter-spacing: 0.2em;
+    color: var(--cyan);
+    text-shadow: var(--glow);
+    margin-bottom: 10px;
+  }
+  footer p {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    color: var(--text-dim);
+    text-transform: uppercase;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* SCANLINE */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0,0,0,0.05) 2px,
+      rgba(0,0,0,0.05) 4px
+    );
+    pointer-events: none;
+    z-index: 200;
+  }
+
+  @media (max-width: 768px) {
+    nav ul { display: none; }
+    nav { padding: 16px 24px; }
+    section { padding: 64px 24px; }
+    .intent-grid { grid-template-columns: 1fr; }
+    .challenge-grid { grid-template-columns: 1fr; }
+    .accomplish-list { grid-template-columns: 1fr; }
+    .status-row { grid-template-columns: 1fr; }
+    .robot-left, .robot-right { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+
+<!-- STARFIELD -->
+<canvas id="stars"></canvas>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">CYBER<span>SIEGE</span></div>
+  <ul>
+    <li><a href="#overview">Overview</a></li>
+    <li><a href="#mechanics">Mechanics</a></li>
+    <li><a href="#challenges">Challenges</a></li>
+    <li><a href="#status">Status</a></li>
+  </ul>
+</nav>
+
+<div class="content">
+
+  <!-- HERO -->
+  <section class="hero" id="overview">
+    <div class="hero-grid"></div>
+
+    <!-- Robot SVGs -->
+    <svg class="robot-left" viewBox="0 0 200 320" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="60" y="20" width="80" height="70" rx="8" fill="none" stroke="#00f5ff" stroke-width="2"/>
+      <circle cx="85" cy="55" r="12" fill="none" stroke="#ff0080" stroke-width="2"/>
+      <circle cx="115" cy="55" r="12" fill="none" stroke="#ff0080" stroke-width="2"/>
+      <circle cx="85" cy="55" r="5" fill="#ff0080"/>
+      <circle cx="115" cy="55" r="5" fill="#ff0080"/>
+      <rect x="80" y="28" width="40" height="8" rx="2" fill="none" stroke="#00f5ff" stroke-width="1.5"/>
+      <rect x="55" y="90" width="90" height="100" rx="6" fill="none" stroke="#00f5ff" stroke-width="2"/>
+      <rect x="70" y="105" width="25" height="30" rx="3" fill="none" stroke="#ffd700" stroke-width="1.5"/>
+      <rect x="105" y="105" width="25" height="30" rx="3" fill="none" stroke="#ffd700" stroke-width="1.5"/>
+      <line x1="100" y1="90" x2="100" y2="190" stroke="#00f5ff" stroke-width="1" opacity="0.4"/>
+      <rect x="30" y="95" width="25" height="60" rx="10" fill="none" stroke="#00f5ff" stroke-width="2"/>
+      <rect x="145" y="95" width="25" height="60" rx="10" fill="none" stroke="#00f5ff" stroke-width="2"/>
+      <rect x="65" y="190" width="25" height="80" rx="8" fill="none" stroke="#00f5ff" stroke-width="2"/>
+      <rect x="110" y="190" width="25" height="80" rx="8" fill="none" stroke="#00f5ff" stroke-width="2"/>
+      <line x1="60" y1="10" x2="140" y2="10" stroke="#00f5ff" stroke-width="1" opacity="0.4"/>
+      <circle cx="100" cy="10" r="10" fill="none" stroke="#00f5ff" stroke-width="2"/>
+    </svg>
+
+    <svg class="robot-right" viewBox="0 0 200 320" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="60" y="20" width="80" height="70" rx="8" fill="none" stroke="#00f5ff" stroke-width="2"/>
+      <circle cx="85" cy="55" r="12" fill="none" stroke="#ff0080" stroke-width="2"/>
+      <circle cx="115" cy="55" r="12" fill="none" stroke="#ff0080" stroke-width="2"/>
+      <circle cx="85" cy="55" r="5" fill="#ff0080"/>
+      <circle cx="115" cy="55" r="5" fill="#ff0080"/>
+      <rect x="80" y="28" width="40" height="8" rx="2" fill="none" stroke="#00f5ff" stroke-width="1.5"/>
+      <rect x="55" y="90" width="90" height="100" rx="6" fill="none" stroke="#00f5ff" stroke-width="2"/>
+      <rect x="70" y="105" width="25" height="30" rx="3" fill="none" stroke="#ffd700" stroke-width="1.5"/>
+      <rect x="105" y="105" width="25" height="30" rx="3" fill="none" stroke="#ffd700" stroke-width="1.5"/>
+      <line x1="100" y1="90" x2="100" y2="190" stroke="#00f5ff" stroke-width="1" opacity="0.4"/>
+      <rect x="30" y="95" width="25" height="60" rx="10" fill="none" stroke="#00f5ff" stroke-width="2"/>
+      <rect x="145" y="95" width="25" height="60" rx="10" fill="none" stroke="#00f5ff" stroke-width="2"/>
+      <rect x="65" y="190" width="25" height="80" rx="8" fill="none" stroke="#00f5ff" stroke-width="2"/>
+      <rect x="110" y="190" width="25" height="80" rx="8" fill="none" stroke="#00f5ff" stroke-width="2"/>
+      <line x1="60" y1="10" x2="140" y2="10" stroke="#00f5ff" stroke-width="1" opacity="0.4"/>
+      <circle cx="100" cy="10" r="10" fill="none" stroke="#00f5ff" stroke-width="2"/>
+    </svg>
+
+    <div class="hero-badge">VR Game Documentation</div>
+
+    <h1 class="hero-title">
+      CYBER<span class="accent"> SIEGE</span>
+      <span class="line2">VR PROTOCOL</span>
+    </h1>
+
+    <p class="hero-sub">A first-person VR shooter set in an asteroid tunnel where players survive increasingly difficult enemy encounters.</p>
+
+    <div class="hero-tags">
+      <span class="tag">🎮 VR Shooter</span>
+      <span class="tag">🚀 Asteroid Tunnel</span>
+      <span class="tag">👾 AI Enemies</span>
+      <span class="tag">⚡ Prototype Stage</span>
+    </div>
+
+    <div class="scroll-hint">
+      <span>Scroll</span>
+      <div class="scroll-bar"></div>
+    </div>
+  </section>
+
+  <!-- DESIGN INTENT -->
+  <section id="intent" style="padding-top: 0;">
+    <div class="section-label">01 — Design Intent</div>
+    <h2 class="section-title">Mission Directive</h2>
+
+    <div class="intent-grid">
+      <div class="intent-card">
+        <span class="ic-icon">⚡</span>
+        <h3>Constant Forward Motion</h3>
+        <p>Players are propelled through a hostile asteroid field under relentless pressure — no stopping, no retreating.</p>
+      </div>
+      <div class="intent-card">
+        <span class="ic-icon">🌐</span>
+        <h3>360° Spatial Awareness</h3>
+        <p>The fully immersive VR environment demands constant awareness in every direction. Threats emerge from all angles.</p>
+      </div>
+      <div class="intent-card">
+        <span class="ic-icon">📈</span>
+        <h3>Escalating Tension</h3>
+        <p>Scaling difficulty ensures the pressure never lets up — reaction time and positioning become increasingly critical.</p>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- CORE MECHANICS -->
+  <section id="mechanics">
+    <div class="section-label">02 — Core Systems</div>
+    <h2 class="section-title">Core Mechanics</h2>
+
+    <div class="mechanic-block">
+      <div class="mechanic-title"><span class="emoji">🚀</span> Movement System</div>
+      <ul>
+        <li>Continuous forward movement through a curved asteroid tunnel</li>
+        <li>Player can shift position within the tunnel while guided along a path</li>
+        <li>Speed gradually increases to intensify gameplay over time</li>
+      </ul>
+    </div>
+
+    <div class="mechanic-block">
+      <div class="mechanic-title"><span class="emoji">👾</span> Enemy System</div>
+      <ul>
+        <li>Enemies spawn dynamically relative to the player's position</li>
+        <li>Multiple enemy types — standard variants and higher-threat units</li>
+        <li>Enemies track and attack the player within a configurable detection range</li>
+      </ul>
+    </div>
+
+    <div class="mechanic-block">
+      <div class="mechanic-title"><span class="emoji">🔫</span> Combat System</div>
+      <ul>
+        <li>Projectile-based enemy attack patterns</li>
+        <li>Player takes damage on impact with reliable hit detection</li>
+        <li>Damage scales as the player progresses deeper into the tunnel</li>
+      </ul>
+    </div>
+
+    <div class="mechanic-block">
+      <div class="mechanic-title"><span class="emoji">📊</span> Progression & Difficulty</div>
+      <ul>
+        <li>Higher enemy damage output over time</li>
+        <li>Faster movement pacing as depth increases</li>
+        <li>More consistent enemy presence with no lull periods</li>
+        <li>Score system with higher-value targets rewarding precision</li>
+      </ul>
+    </div>
+
+    <div class="mechanic-block">
+      <div class="mechanic-title"><span class="emoji">🌌</span> Environment System</div>
+      <ul>
+        <li>Procedurally generated asteroid tunnel</li>
+        <li>Adjustable width, curvature, and asteroid density</li>
+        <li>Moving asteroids to create dynamic environmental motion</li>
+      </ul>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- CHALLENGES -->
+  <section id="challenges">
+    <div class="section-label">03 — Problem Solving</div>
+    <h2 class="section-title">Challenges & Solutions</h2>
+
+    <div class="challenge-grid">
+      <div class="challenge-card">
+        <h3>Enemy Spawning & Pacing</h3>
+        <div class="problem-label">Problem</div>
+        <p>Enemies appeared behind or below the player, with dead periods of zero enemy presence breaking the tension.</p>
+        <div class="solution-label">Solution</div>
+        <p>Refined spawn logic to ensure enemies always appear in front of or near the player, maintaining consistent pressure throughout.</p>
+      </div>
+
+      <div class="challenge-card">
+        <h3>Projectile Hit Detection</h3>
+        <div class="problem-label">Problem</div>
+        <p>Bullets were unreliable — missing the player or colliding with unintended objects in the environment.</p>
+        <div class="solution-label">Solution</div>
+        <p>Reworked collision handling using proper collider hierarchy and <code style="color:var(--cyan);font-size:0.8rem">GetComponentInParent()</code> for consistent damage registration.</p>
+      </div>
+
+      <div class="challenge-card">
+        <h3>Enemy Aiming Behavior</h3>
+        <div class="problem-label">Problem</div>
+        <p>Enemies fired inaccurately, shooting in incorrect directions and failing to properly track the player.</p>
+        <div class="solution-label">Solution</div>
+        <p>Implemented directional targeting toward the player with positional offsets and debug visualization for fine-tuning.</p>
+      </div>
+
+      <div class="challenge-card">
+        <h3>Difficulty Balancing</h3>
+        <div class="problem-label">Problem</div>
+        <p>Score inflated too rapidly and damage scaling felt inconsistent, undermining meaningful progression.</p>
+        <div class="solution-label">Solution</div>
+        <p>Adjusted scaling systems to create a smoother difficulty curve and produce more satisfying moment-to-moment progression.</p>
+      </div>
+
+      <div class="challenge-card">
+        <h3>Tunnel & Environment</h3>
+        <div class="problem-label">Problem</div>
+        <p>Tunnel felt too wide or empty, asteroids stopped unexpectedly, and the player could drift off the intended path.</p>
+        <div class="solution-label">Solution</div>
+        <p>Refined tunnel constraints, spawn distances, and movement boundaries to keep gameplay in a focused, intense corridor.</p>
+      </div>
+
+      <div class="challenge-card">
+        <h3>Visual Feedback & Game Feel</h3>
+        <div class="problem-label">Problem</div>
+        <p>Missing impact effects and delayed or unclear enemy death animations reduced immersion and combat clarity.</p>
+        <div class="solution-label">Solution</div>
+        <p>Improved visual feedback timing to ensure effects trigger correctly on collisions and destruction events.</p>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ACCOMPLISHMENTS -->
+  <section id="accomplishments">
+    <div class="section-label">04 — Achievements</div>
+    <h2 class="section-title">Accomplishments</h2>
+
+    <div class="accomplish-list">
+      <div class="accomplish-item">
+        <div class="accomplish-check">✦</div>
+        <p>Built a fully playable VR prototype with continuous movement and combat</p>
+      </div>
+      <div class="accomplish-item">
+        <div class="accomplish-check">✦</div>
+        <p>Developed a modular enemy system with scalable difficulty</p>
+      </div>
+      <div class="accomplish-item">
+        <div class="accomplish-check">✦</div>
+        <p>Implemented reliable projectile and damage systems</p>
+      </div>
+      <div class="accomplish-item">
+        <div class="accomplish-check">✦</div>
+        <p>Created a procedural asteroid tunnel environment</p>
+      </div>
+      <div class="accomplish-item">
+        <div class="accomplish-check">✦</div>
+        <p>Integrated scoring, health, and game state systems</p>
+      </div>
+      <div class="accomplish-item">
+        <div class="accomplish-check">✦</div>
+        <p>Established a complete gameplay loop with increasing intensity</p>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- STATUS + NEXT -->
+  <section id="status">
+    <div class="section-label">05 — Current State</div>
+    <h2 class="section-title">Status & Roadmap</h2>
+
+    <div class="status-row">
+      <div class="status-box">
+        <h3>Current Prototype Status</h3>
+        <div class="status-item"><div class="status-dot"></div> Core mechanics fully functional</div>
+        <div class="status-item"><div class="status-dot gold"></div> Gameplay loop established</div>
+        <div class="status-item"><div class="status-dot"></div> Difficulty progression implemented</div>
+        <div class="status-item" style="margin-top:24px;padding-top:20px;border-top:1px solid var(--border)">
+          <div style="font-family:'Share Tech Mono',monospace;font-size:0.65rem;letter-spacing:0.2em;color:var(--text-dim);text-transform:uppercase;">Build Phase</div>
+        </div>
+        <div style="margin-top:8px;background:rgba(0,245,255,0.08);border:1px solid var(--cyan);padding:14px 18px;font-family:'Orbitron',sans-serif;font-size:0.75rem;color:var(--cyan);letter-spacing:0.1em;">
+          ▓▓▓▓▓▓▓▓▓░░░&nbsp;&nbsp;PROTOTYPE
+        </div>
+      </div>
+
+      <div class="status-box">
+        <h3>Next Steps</h3>
+        <ul class="next-list">
+          <li>
+            <div class="next-num">01</div>
+            Introduce boss encounters for replayability
+          </li>
+          <li>
+            <div class="next-num">02</div>
+            Add player weapons and interaction improvements
+          </li>
+          <li>
+            <div class="next-num">03</div>
+            Enhance visual polish and audio feedback
+          </li>
+          <li>
+            <div class="next-num">04</div>
+            Refine pacing and level progression systems
+          </li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="foot-logo">CYBER SIEGE</div>
+    <p>VR Game Documentation &nbsp;·&nbsp; Prototype Build &nbsp;·&nbsp; First-Person Shooter</p>
+  </footer>
+
+</div>
+
+<script>
+  // Cursor
+  const cursor = document.getElementById('cursor');
+  document.addEventListener('mousemove', e => {
+    cursor.style.left = e.clientX + 'px';
+    cursor.style.top = e.clientY + 'px';
+  });
+
+  // Starfield
+  const canvas = document.getElementById('stars');
+  const ctx = canvas.getContext('2d');
+  let stars = [];
+
+  function resize() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+
+  function initStars() {
+    stars = [];
+    for (let i = 0; i < 260; i++) {
+      stars.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        r: Math.random() * 1.4 + 0.2,
+        speed: Math.random() * 0.4 + 0.05,
+        opacity: Math.random() * 0.7 + 0.2,
+        twinkle: Math.random() * Math.PI * 2,
+        color: Math.random() > 0.9 ? '#ff0080' : Math.random() > 0.8 ? '#ffd700' : '#00f5ff'
+      });
+    }
+  }
+
+  function animateStars() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    const t = Date.now() * 0.001;
+    stars.forEach(s => {
+      const tw = Math.sin(t * 1.5 + s.twinkle) * 0.3 + 0.7;
+      ctx.beginPath();
+      ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+      ctx.fillStyle = s.color;
+      ctx.globalAlpha = s.opacity * tw;
+      ctx.fill();
+      ctx.globalAlpha = 1;
+      s.y += s.speed;
+      if (s.y > canvas.height) { s.y = 0; s.x = Math.random() * canvas.width; }
+    });
+    requestAnimationFrame(animateStars);
+  }
+
+  resize();
+  initStars();
+  animateStars();
+  window.addEventListener('resize', () => { resize(); initStars(); });
+
+  // Scroll reveal
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.style.opacity = '1';
+        e.target.style.transform = 'translateY(0)';
+      }
+    });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll('.intent-card, .mechanic-block, .challenge-card, .accomplish-item, .status-box').forEach(el => {
+    el.style.opacity = '0';
+    el.style.transform = 'translateY(20px)';
+    el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+    observer.observe(el);
+  });
+</script>
+</body>
+</html>
