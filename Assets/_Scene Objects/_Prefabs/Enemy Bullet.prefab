@@ -133,7 +133,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a7e77413f44574ef3825cdba2b12220c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BossBulletDamage
-  damage: 150
+  damage: 130
   lifetime: 4
   impactEffect: {fileID: 1000013947318026, guid: d4bb44e0d96319e42a338ba7d4781d19, type: 3}
   impactDestroyTime: 2

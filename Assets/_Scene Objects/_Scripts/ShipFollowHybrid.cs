@@ -32,7 +32,9 @@ public class ShipFollowHybrid : MonoBehaviour
     [SerializeField] private float returnToCenterSpeed = 2f;
     [SerializeField] private float inputDeadzone = 0.15f;
 
-    [Header("Intro Auto Centering")]
+    [Header("Intro Settings")]
+    [SerializeField] private bool allowSideMovementDuringIntro = true;
+    [SerializeField] private bool centerShipDuringIntro = false;
     [SerializeField] private float introPositionCenterSpeed = 1.8f;
     [SerializeField] private float introRotationCenterSpeed = 2.5f;
 
@@ -118,22 +120,52 @@ public class ShipFollowHybrid : MonoBehaviour
 
         HandleForwardMovement();
 
-        if (moveInput.x != 0f && !introAutoCentering && !lightSpeedActive)
+        bool isIntro = introPaused || introAutoCentering;
+        bool canMoveSideways =
+            !lightSpeedActive &&
+            (!isIntro || allowSideMovementDuringIntro);
+
+        if (moveInput.x != 0f && canMoveSideways)
+        {
             tunnelOffset.x += moveInput.x * moveSpeed * Time.deltaTime;
+        }
         else
-            tunnelOffset.x = Mathf.Lerp(tunnelOffset.x, 0f, returnToCenterSpeed * Time.deltaTime);
+        {
+            if (!isIntro || centerShipDuringIntro || introAutoCentering || lightSpeedActive)
+            {
+                tunnelOffset.x = Mathf.Lerp(
+                    tunnelOffset.x,
+                    0f,
+                    returnToCenterSpeed * Time.deltaTime
+                );
+            }
+        }
 
         tunnelOffset.y = 0f;
 
-        if (introAutoCentering || lightSpeedActive)
-            tunnelOffset.x = Mathf.Lerp(tunnelOffset.x, 0f, introPositionCenterSpeed * Time.deltaTime);
+        if (introAutoCentering && centerShipDuringIntro)
+        {
+            tunnelOffset.x = Mathf.Lerp(
+                tunnelOffset.x,
+                0f,
+                introPositionCenterSpeed * Time.deltaTime
+            );
+        }
+
+        if (lightSpeedActive)
+        {
+            tunnelOffset.x = Mathf.Lerp(
+                tunnelOffset.x,
+                0f,
+                introPositionCenterSpeed * Time.deltaTime
+            );
+        }
 
         tunnelOffset = Vector2.ClampMagnitude(tunnelOffset, maxTunnelRadius);
 
         Vector3 center = GetTunnelCenter(forwardDistance);
         Vector3 targetPosition = center + Vector3.right * tunnelOffset.x;
 
-        // 🔥 hyperspace drift
         if (lightSpeedActive)
             transform.position = Vector3.Lerp(transform.position, targetPosition, 0.6f * Time.deltaTime);
         else

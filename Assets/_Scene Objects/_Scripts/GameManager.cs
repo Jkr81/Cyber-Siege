@@ -52,6 +52,8 @@ public class GameManager : MonoBehaviour
 
     public void AddKill(int enemyBasePoints)
     {
+        if (gameEnded) return;
+
         kills++;
 
         int pointsThisKill = Mathf.RoundToInt(enemyBasePoints * intensityMultiplier);
@@ -86,6 +88,31 @@ public class GameManager : MonoBehaviour
     {
         gameEnded = true;
         Debug.Log("GAME OVER");
-        Time.timeScale = 0f;
+
+        MainGameAudioOnly audio = FindObjectOfType<MainGameAudioOnly>();
+        if (audio != null)
+            audio.StopAudio();
+
+        if (CyberEndSequence.Instance != null)
+        {
+            CyberEndSequence.Instance.PlayLoseEnding();
+        }
+    }
+
+    public void WinGame()
+    {
+        if (gameEnded) return;
+
+        gameEnded = true;
+        Debug.Log("YOU WIN");
+
+        MainGameAudioOnly audio = FindObjectOfType<MainGameAudioOnly>();
+        if (audio != null)
+            audio.StopAudio();
+
+        if (CyberEndSequence.Instance != null)
+        {
+            CyberEndSequence.Instance.PlayWinEnding();
+        }
     }
 }

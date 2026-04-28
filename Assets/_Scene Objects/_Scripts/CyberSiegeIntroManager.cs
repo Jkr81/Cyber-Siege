@@ -45,11 +45,15 @@ public class CyberSiegeIntroManager : MonoBehaviour
     private bool introComplete = false;
     private bool panel1Used = false;
     private bool panel2Used = false;
-
     private Transform originalHyperspaceParent;
 
     private void Start()
     {
+        // Ensure music is OFF during intro
+        MainGameAudioOnly music = FindObjectOfType<MainGameAudioOnly>();
+        if (music != null)
+            music.StopAudio();
+
         DisableRealGameSpawners();
 
         if (hyperspaceEffect != null)
@@ -226,5 +230,13 @@ public class CyberSiegeIntroManager : MonoBehaviour
         }
 
         EnableRealGameSpawners();
+
+        MainGameAudioOnly music = FindObjectOfType<MainGameAudioOnly>();
+
+        if (music != null)
+        {
+            Debug.Log("MAIN GAME MUSIC STARTED");
+            music.PlayAudio();
+        }
     }
 }

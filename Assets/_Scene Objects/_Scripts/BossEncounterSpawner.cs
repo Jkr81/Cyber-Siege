@@ -72,22 +72,12 @@ public class BossEncounterSpawner : MonoBehaviour
         Vector3 basePosition = player.position + forwardDirection * spawnInFrontOfPlayer;
         Vector3 asteroidPosition = basePosition + asteroidOffset;
 
-        GameObject asteroid = Instantiate(
-            bossAsteroidPrefab,
-            asteroidPosition,
-            Quaternion.identity
-        );
+        GameObject asteroid = Instantiate(bossAsteroidPrefab, asteroidPosition, Quaternion.identity);
 
         Vector3 bossPosition = asteroid.transform.position + bossOffsetOnAsteroid;
-
         Quaternion bossRotation = Quaternion.LookRotation(player.position - bossPosition);
 
-        GameObject boss = Instantiate(
-            bossPrefab,
-            bossPosition,
-            bossRotation
-        );
-
+        GameObject boss = Instantiate(bossPrefab, bossPosition, bossRotation);
         boss.transform.SetParent(asteroid.transform, true);
 
         BossEncounterCleanup cleanup = asteroid.AddComponent<BossEncounterCleanup>();
@@ -167,6 +157,7 @@ public class BossEncounterCleanup : MonoBehaviour
     private HealthComponent bossHealth;
     private float destroyDelay;
     private bool destroying = false;
+    private bool winTriggered = false;
 
     public void Setup(GameObject bossObject, float delay)
     {
@@ -183,13 +174,30 @@ public class BossEncounterCleanup : MonoBehaviour
 
         if (boss == null)
         {
+            TriggerWin();
             StartCoroutine(DestroyAsteroid());
             return;
         }
 
         if (bossHealth != null && bossHealth.CurrentHealth <= 0f)
         {
+            TriggerWin();
             StartCoroutine(DestroyAsteroid());
+        }
+    }
+
+    private void TriggerWin()
+    {
+        if (winTriggered) return;
+        winTriggered = true;
+
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.WinGame();
+        }
+        else
+        {
+            Debug.LogWarning("Boss died, but GameManager.Instance was not found.");
         }
     }
 
