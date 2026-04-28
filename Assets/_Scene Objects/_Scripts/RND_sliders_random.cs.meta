@@ -14,5 +14,5 @@ AssetOrigin:
   productId: 281176
   packageName: Asteroids Belt procedural generator URP
   packageVersion: 1.1
-  assetPath: Assets/Asteroids/Scripts/RND_sliders_random.cs
+  assetPath: Assets/_Scene Objects/_Scripts/RND_sliders_random.cs
   uploadId: 708551

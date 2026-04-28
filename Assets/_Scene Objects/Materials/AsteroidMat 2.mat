@@ -82,6 +82,7 @@ Material:
     - _WaveNoiseGeom_RND_2_30: 8.4
     - _Wave_Noise2_Geom_RND_10_70: 10
     - _Wave_Noise_Geom_RND_2_30: 2
+    - _XRMotionVectorsPass: 1
     m_Colors:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _Color2_TXT_3: {r: 0.81761, g: 0.4827627, b: 0, a: 0}

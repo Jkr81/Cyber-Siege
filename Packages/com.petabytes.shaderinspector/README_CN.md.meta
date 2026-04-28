@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 62716cf9f29805f4a8a42e4808dcbe30
+TextScriptImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 364728
+  packageName: Shader Inspector
+  packageVersion: 1.0.0
+  assetPath: Packages/com.petabytes.shaderinspector/README_CN.md
+  uploadId: 884270

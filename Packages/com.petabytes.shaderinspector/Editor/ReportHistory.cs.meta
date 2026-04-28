@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: ff54baa52e9d94a8ca38d364347d7c1b
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 364728
+  packageName: Shader Inspector
+  packageVersion: 1.0.0
+  assetPath: Packages/com.petabytes.shaderinspector/Editor/ReportHistory.cs
+  uploadId: 884270

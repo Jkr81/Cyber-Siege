@@ -13,5 +13,5 @@ AssetOrigin:
   productId: 281176
   packageName: Asteroids Belt procedural generator URP
   packageVersion: 1.1
-  assetPath: Assets/Asteroids/Shaders/Subgraphs/Crcle Spots.shadersubgraph
+  assetPath: Assets/_Scene Objects/Shaders/Subgraphs/Crcle Spots.shadersubgraph
   uploadId: 708551

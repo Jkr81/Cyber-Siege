@@ -14,5 +14,5 @@ AssetOrigin:
   productId: 281176
   packageName: Asteroids Belt procedural generator URP
   packageVersion: 1.1
-  assetPath: Assets/Asteroids/Scripts/SimpleCameraController.cs
+  assetPath: Assets/_Scene Objects/_Scripts/SimpleCameraController.cs
   uploadId: 708551

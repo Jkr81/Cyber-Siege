@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: f3c2d3466d68449c5ab2458023bc6913
+AssemblyDefinitionImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 364728
+  packageName: Shader Inspector
+  packageVersion: 1.0.0
+  assetPath: Packages/com.petabytes.shaderinspector/Editor/com.unity.ShaderAnalyze.asmdef
+  uploadId: 884270

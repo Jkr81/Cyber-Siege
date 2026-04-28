@@ -150,6 +150,10 @@ MonoBehaviour:
   deathEffectDestroyTime: 3
   defaultPointsOnKill: 100
   redEnemyPointsOnKill: 150
+  scalePointsWithDifficulty: 1
+  minDifficulty: 1
+  maxDifficulty: 2
+  maxPointMultiplier: 1.2
 --- !u!136 &1448797331137654833
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -203,8 +207,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b7861c96b2ad04f3887a8a621478ec17, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemySpawnEffect
-  spawnEffectPrefab: {fileID: 0}
-  destroyAfter: 2.5
+  effectDuration: 1.2
+  hologramColor: {r: 0, g: 1, b: 1, a: 1}
+  emissionStrength: 3
+  flickerSpeed: 20
   useScalePop: 1
   popDuration: 0.3
   startScaleMultiplier: 0.7

@@ -13,5 +13,5 @@ AssetOrigin:
   productId: 281176
   packageName: Asteroids Belt procedural generator URP
   packageVersion: 1.1
-  assetPath: Assets/Asteroids/Shaders/SkyBox_SH.shadergraph
+  assetPath: Assets/_Scene Objects/Shaders/SkyBox_SH.shadergraph
   uploadId: 708551

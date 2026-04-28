@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: afc53016cb63cd14e93e6c4e2a7ae11a
+PackageManifestImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 364728
+  packageName: Shader Inspector
+  packageVersion: 1.0.0
+  assetPath: Packages/com.petabytes.shaderinspector/package.json
+  uploadId: 884270

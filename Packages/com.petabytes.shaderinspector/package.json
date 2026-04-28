@@ -1,0 +1,7 @@
+{
+  "name": "com.petabytes.shaderinspector",
+  "displayName": "Shader Inspector",
+  "version": "1.0.0",
+  "description": "Analyze shader performance metrics with vendor provided tools",
+  "category": "Shader"
+}

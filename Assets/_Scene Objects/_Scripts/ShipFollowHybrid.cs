@@ -13,6 +13,13 @@ public class ShipFollowHybrid : MonoBehaviour
     [SerializeField] private float maxForwardSpeed = 20f;
     [SerializeField] private float speedIncreaseRate = 0.1f;
 
+    [Header("Light Speed Burst")]
+    [SerializeField] private float lightSpeedAcceleration = 2.5f;
+    [SerializeField] private float lightSpeedVisualSpeed = 45f;
+    [SerializeField] private float lightSpeedEnginePitch = 2.4f;
+    [SerializeField] private float lightSpeedEngineVolume = 0.85f;
+    [SerializeField] private bool moveDuringLightSpeed = false;
+
     [Header("Curved Tunnel")]
     [SerializeField] private bool followCurve = true;
     [SerializeField] private float curveSideAmount = 10f;
@@ -24,6 +31,10 @@ public class ShipFollowHybrid : MonoBehaviour
     [SerializeField] private float maxTunnelRadius = 4.5f;
     [SerializeField] private float returnToCenterSpeed = 2f;
     [SerializeField] private float inputDeadzone = 0.15f;
+
+    [Header("Intro Auto Centering")]
+    [SerializeField] private float introPositionCenterSpeed = 1.8f;
+    [SerializeField] private float introRotationCenterSpeed = 2.5f;
 
     [Header("Turning")]
     [SerializeField] private float turnSpeed = 90f;
@@ -41,19 +52,33 @@ public class ShipFollowHybrid : MonoBehaviour
     private float forwardDistance;
     private Vector2 tunnelOffset;
     private Vector3 startPosition;
+    private Quaternion startRotation;
 
     private bool bossPaused = false;
+    private bool introPaused = false;
+    private bool introAutoCentering = false;
+
+    private bool lightSpeedActive = false;
+    private float lightSpeedTimer = 0f;
+    private float lightSpeedDuration = 0f;
+    private float lightSpeedTargetSpeed = 45f;
 
     public float DifficultyMultiplier { get; private set; } = 1f;
+    public float ForwardDistance => forwardDistance;
 
-    public float ForwardDistance
-    {
-        get { return forwardDistance; }
-    }
+    public void SetBossPaused(bool paused) => bossPaused = paused;
+    public void SetIntroPaused(bool paused) => introPaused = paused;
+    public void SetIntroAutoCentering(bool enabled) => introAutoCentering = enabled;
 
-    public void SetBossPaused(bool paused)
+    public void StartLightSpeedBurst(float duration, float targetSpeed)
     {
-        bossPaused = paused;
+        lightSpeedActive = true;
+        lightSpeedTimer = 0f;
+        lightSpeedDuration = duration;
+        lightSpeedTargetSpeed = targetSpeed;
+
+        if (engineAudio != null && !engineAudio.isPlaying)
+            engineAudio.Play();
     }
 
     private void OnEnable()
@@ -71,6 +96,7 @@ public class ShipFollowHybrid : MonoBehaviour
     private void Start()
     {
         startPosition = transform.position;
+        startRotation = transform.rotation;
         currentForwardSpeed = startForwardSpeed;
 
         if (engineAudio != null)
@@ -90,52 +116,94 @@ public class ShipFollowHybrid : MonoBehaviour
         if (moveInput.magnitude < inputDeadzone)
             moveInput = Vector2.zero;
 
-        if (autoMoveForward && !bossPaused)
-        {
-            currentForwardSpeed += speedIncreaseRate * Time.deltaTime;
-            currentForwardSpeed = Mathf.Clamp(currentForwardSpeed, startForwardSpeed, maxForwardSpeed);
-            forwardDistance += currentForwardSpeed * Time.deltaTime;
-        }
+        HandleForwardMovement();
 
-        if (moveInput.x != 0f)
-        {
+        if (moveInput.x != 0f && !introAutoCentering && !lightSpeedActive)
             tunnelOffset.x += moveInput.x * moveSpeed * Time.deltaTime;
-        }
         else
-        {
             tunnelOffset.x = Mathf.Lerp(tunnelOffset.x, 0f, returnToCenterSpeed * Time.deltaTime);
-        }
 
         tunnelOffset.y = 0f;
+
+        if (introAutoCentering || lightSpeedActive)
+            tunnelOffset.x = Mathf.Lerp(tunnelOffset.x, 0f, introPositionCenterSpeed * Time.deltaTime);
 
         tunnelOffset = Vector2.ClampMagnitude(tunnelOffset, maxTunnelRadius);
 
         Vector3 center = GetTunnelCenter(forwardDistance);
+        Vector3 targetPosition = center + Vector3.right * tunnelOffset.x;
 
-        Vector3 newPosition =
-            center +
-            Vector3.right * tunnelOffset.x;
+        // 🔥 hyperspace drift
+        if (lightSpeedActive)
+            transform.position = Vector3.Lerp(transform.position, targetPosition, 0.6f * Time.deltaTime);
+        else
+            transform.position = targetPosition;
 
-        transform.position = newPosition;
-
-        if (!bossPaused || allowTurningDuringBoss)
+        if ((!bossPaused || allowTurningDuringBoss) && !lightSpeedActive)
         {
             float yawAmount = turnInput.x * turnSpeed * Time.deltaTime;
             transform.Rotate(0f, yawAmount, 0f, Space.World);
         }
 
-        DifficultyMultiplier = 1f + (forwardDistance / 50f);
-        DifficultyMultiplier = Mathf.Clamp(DifficultyMultiplier, 1f, 3f);
+        if (introAutoCentering || lightSpeedActive)
+        {
+            transform.rotation = Quaternion.Slerp(
+                transform.rotation,
+                startRotation,
+                introRotationCenterSpeed * Time.deltaTime
+            );
+        }
+
+        DifficultyMultiplier = Mathf.Clamp(1f + (forwardDistance / 50f), 1f, 3f);
 
         UpdateEngineAudio();
+    }
+
+    private void HandleForwardMovement()
+    {
+        if (!autoMoveForward || bossPaused || introPaused)
+            return;
+
+        if (lightSpeedActive)
+        {
+            lightSpeedTimer += Time.deltaTime;
+
+            currentForwardSpeed = Mathf.Lerp(
+                currentForwardSpeed,
+                lightSpeedTargetSpeed,
+                lightSpeedAcceleration * Time.deltaTime
+            );
+
+            if (moveDuringLightSpeed)
+                forwardDistance += currentForwardSpeed * Time.deltaTime;
+
+            if (lightSpeedTimer >= lightSpeedDuration)
+            {
+                lightSpeedActive = false;
+                currentForwardSpeed = startForwardSpeed;
+            }
+
+            return;
+        }
+
+        currentForwardSpeed += speedIncreaseRate * Time.deltaTime;
+        currentForwardSpeed = Mathf.Clamp(currentForwardSpeed, startForwardSpeed, maxForwardSpeed);
+
+        forwardDistance += currentForwardSpeed * Time.deltaTime;
     }
 
     private void UpdateEngineAudio()
     {
         if (engineAudio == null) return;
 
-        float speedPercent = Mathf.InverseLerp(startForwardSpeed, maxForwardSpeed, currentForwardSpeed);
+        if (lightSpeedActive)
+        {
+            engineAudio.pitch = Mathf.Lerp(engineAudio.pitch, lightSpeedEnginePitch, 5f * Time.deltaTime);
+            engineAudio.volume = Mathf.Lerp(engineAudio.volume, lightSpeedEngineVolume, 5f * Time.deltaTime);
+            return;
+        }
 
+        float speedPercent = Mathf.InverseLerp(startForwardSpeed, maxForwardSpeed, currentForwardSpeed);
         engineAudio.pitch = Mathf.Lerp(minEnginePitch, maxEnginePitch, speedPercent);
         engineAudio.volume = bossPaused ? bossEngineVolume : normalEngineVolume;
     }
@@ -148,7 +216,6 @@ public class ShipFollowHybrid : MonoBehaviour
             return basePos;
 
         float t = distance / curveLength;
-
         float sideCurve = Mathf.Sin(t) * curveSideAmount;
         float upCurve = Mathf.Sin(t * 0.6f) * curveUpAmount;
 

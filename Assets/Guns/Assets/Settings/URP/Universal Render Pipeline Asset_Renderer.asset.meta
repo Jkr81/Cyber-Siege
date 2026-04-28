@@ -11,6 +11,5 @@ AssetOrigin:
   productId: 170222
   packageName: XR Interaction ToolKit Starter Kit
   packageVersion: 1.6.250208
-  assetPath: Assets/XRI Starter Kit/Assets/Settings/URP/Universal Render Pipeline
-    Asset_Renderer.asset
+  assetPath: Assets/Guns/Assets/Settings/URP/Universal Render Pipeline Asset_Renderer.asset
   uploadId: 731461

@@ -1,4 +1,5 @@
 ﻿<Solution>
+  <Project Path="ShaderAnalyze.csproj" />
   <Project Path="MikeNspiredXRIStarterKit.Runtime.csproj" />
   <Project Path="Unity.XR.Interaction.Toolkit.Samples.InteractionSimulator.csproj" />
   <Project Path="Assembly-CSharp.csproj" />

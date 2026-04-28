@@ -30,20 +30,34 @@ public class ProjectileDamage : MonoBehaviour
     {
         if (hasHit) return;
 
+        // 🔥 PANEL CHECK FIRST
+        ShootableIntroPanel panel = hitCollider.GetComponentInParent<ShootableIntroPanel>();
+
+        if (panel != null)
+        {
+            hasHit = true;
+
+            SpawnImpact(hitPoint);
+
+            if (destroyOnHit)
+                Destroy(gameObject); // destroy bullet FIRST
+
+            panel.HitPanel();
+
+            return;
+        }
+
+        // NORMAL ENEMY DAMAGE
         HealthComponent health = hitCollider.GetComponentInParent<HealthComponent>();
         if (health == null) return;
 
         hasHit = true;
 
         SpawnImpact(hitPoint);
-
-        // ONLY damage — no scoring here anymore
         health.TakeDamage(damage);
 
         if (destroyOnHit)
-        {
             Destroy(gameObject);
-        }
     }
 
     private void SpawnImpact(Vector3 position)
