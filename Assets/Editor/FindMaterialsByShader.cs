@@ -163,38 +163,45 @@ public class FindMaterialsByShader : EditorWindow
     }
 }
 
-public class SimpleShaderVariantStripper : IPreprocessShaders
+public class QuestSafeShaderStripper : IPreprocessShaders
 {
-    static readonly ShaderKeyword[] s_KeywordsToStrip = new[]
+    static readonly ShaderKeyword[] s_SafeToStrip = new[]
     {
+        // Not supported on Quest
         new ShaderKeyword("_LIGHT_COOKIES"),
-        new ShaderKeyword("_REFLECTION_PROBE_BLENDING"),
-        new ShaderKeyword("_REFLECTION_PROBE_BOX_PROJECTION"),
-        new ShaderKeyword("_SHADOWS_SOFT"),
-        new ShaderKeyword("_SCREEN_SPACE_OCCLUSION"),
         new ShaderKeyword("_DECALS_DBUFFER"),
-        new ShaderKeyword("_LIGHT_LAYERS"),
+
+        // Shadow variants - Quest uses simple shadows only
+        new ShaderKeyword("_MAIN_LIGHT_SHADOWS"),
+        new ShaderKeyword("_MAIN_LIGHT_SHADOWS_CASCADE"),
+        new ShaderKeyword("_MAIN_LIGHT_SHADOWS_SCREEN"),
+        new ShaderKeyword("_ADDITIONAL_LIGHT_SHADOWS"),
+        new ShaderKeyword("_SHADOWS_SOFT"),
+        new ShaderKeyword("_SHADOWS_SOFT_LOW"),
+        new ShaderKeyword("_SHADOWS_SOFT_MEDIUM"),
+        new ShaderKeyword("_SHADOWS_SOFT_HIGH"),
+
+        // Additional lights - Quest handles these differently
+        new ShaderKeyword("_ADDITIONAL_LIGHTS"),
+        new ShaderKeyword("_ADDITIONAL_LIGHTS_VERTEX"),
+
+        // Complex Lit features not used with Simple Lit
         new ShaderKeyword("_DETAIL_MULX2"),
         new ShaderKeyword("_DETAIL_SCALED"),
         new ShaderKeyword("_CLEARCOAT"),
         new ShaderKeyword("_CLEARCOATMAP"),
         new ShaderKeyword("_PARALLAXMAP"),
         new ShaderKeyword("_BENTNORMAL"),
-        new ShaderKeyword("LIGHTMAP_SHADOW_MIXING"),
-        new ShaderKeyword("SHADOWS_SHADOWMASK"),
-        new ShaderKeyword("DIRLIGHTMAP_COMBINED"),
-        new ShaderKeyword("_FLIPBOOKBLENDING_ON"),
-        new ShaderKeyword("_SOFTPARTICLES_ON"),
-        new ShaderKeyword("_FADING_ON"),
-        new ShaderKeyword("_DISTORTION_ON"),
-        // Terrain specific
-        new ShaderKeyword("_NORMALMAP"),
-        new ShaderKeyword("_MASKMAP"),
+
+        // No terrain in a space game
         new ShaderKeyword("TERRAIN_SPLAT_ADDPASS"),
         new ShaderKeyword("TERRAIN_INSTANCED_PERPIXEL_NORMAL"),
-        new ShaderKeyword("_ALPHATEST_ON"),
-        // Post processing
+
+        // Debug and editor only
         new ShaderKeyword("DEBUG_DISPLAY"),
+        new ShaderKeyword("EDITOR_VISUALIZATION"),
+
+        // Post processing Quest can't run
         new ShaderKeyword("_FXAA"),
         new ShaderKeyword("_FILM_GRAIN"),
         new ShaderKeyword("_RCAS"),
@@ -204,33 +211,20 @@ public class SimpleShaderVariantStripper : IPreprocessShaders
         new ShaderKeyword("HDR_COLORSPACE_CONVERSION"),
         new ShaderKeyword("HDR_COLORSPACE_CONVERSION_AND_ENCODING"),
         new ShaderKeyword("HDR_ENCODING"),
-        // UberPost specific
         new ShaderKeyword("_BLOOM_HQ"),
         new ShaderKeyword("_BLOOM_HQ_DIRT"),
-        new ShaderKeyword("_BLOOM_LQ"),
         new ShaderKeyword("_BLOOM_LQ_DIRT"),
         new ShaderKeyword("_CHROMATIC_ABERRATION"),
         new ShaderKeyword("_TONEMAP_ACES"),
         new ShaderKeyword("_TONEMAP_NEUTRAL"),
         new ShaderKeyword("_HDR_GRADING"),
         new ShaderKeyword("_GAMMA_20"),
-    };
 
-    static readonly string[] s_TargetShaders = new[]
-    {
-        "Universal Render Pipeline/Lit",
-        "Universal Render Pipeline/Simple Lit",
-        "Universal Render Pipeline/Complex Lit",
-        "Universal Render Pipeline/Particles/Lit",
-        "Universal Render Pipeline/Particles/Simple Lit",
-        "Universal Render Pipeline/Particles/Unlit",
-        "Hidden/TerrainEngine/Details/UniversalPipeline",
-        "Hidden/Universal Render Pipeline/FinalPostXR",
-        "Hidden/Universal Render Pipeline/FinalPost",
-        "Hidden/Universal Render Pipeline/UberPost",
-        "Hidden/Universal/CoreBlit",
-        "Hidden/Universal/BlitHDROverlay",
-        "Hidden/Universal/HDRDebugView",
+        // Particle features not used in your game
+        new ShaderKeyword("_FLIPBOOKBLENDING_ON"),
+        new ShaderKeyword("_SOFTPARTICLES_ON"),
+        new ShaderKeyword("_FADING_ON"),
+        new ShaderKeyword("_DISTORTION_ON"),
     };
 
     public int callbackOrder => 0;
@@ -238,18 +232,11 @@ public class SimpleShaderVariantStripper : IPreprocessShaders
     public void OnProcessShader(Shader shader, ShaderSnippetData snippet,
                                 IList<ShaderCompilerData> data)
     {
-        bool isTarget = false;
-        foreach (var name in s_TargetShaders)
-        {
-            if (shader.name == name) { isTarget = true; break; }
-        }
-        if (!isTarget) return;
-
         int beforeCount = data.Count;
 
         for (int i = data.Count - 1; i >= 0; i--)
         {
-            foreach (var keyword in s_KeywordsToStrip)
+            foreach (var keyword in s_SafeToStrip)
             {
                 if (data[i].shaderKeywordSet.IsEnabled(keyword))
                 {
@@ -259,6 +246,7 @@ public class SimpleShaderVariantStripper : IPreprocessShaders
             }
         }
 
-        Debug.Log($"[ShaderStripper] {shader.name}: {beforeCount} → {data.Count} variants");
+        if (beforeCount != data.Count)
+            Debug.Log($"[QuestStripper] {shader.name}: {beforeCount} → {data.Count} variants");
     }
-}
+} 

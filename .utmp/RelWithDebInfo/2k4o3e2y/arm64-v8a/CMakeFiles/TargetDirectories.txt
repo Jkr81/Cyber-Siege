@@ -1,5 +1,0 @@
-/Users/josh/Unity Files/Cyber Siege/.utmp/RelWithDebInfo/2k4o3e2y/arm64-v8a/CMakeFiles/edit_cache.dir
-/Users/josh/Unity Files/Cyber Siege/.utmp/RelWithDebInfo/2k4o3e2y/arm64-v8a/CMakeFiles/rebuild_cache.dir
-/Users/josh/Unity Files/Cyber Siege/.utmp/RelWithDebInfo/2k4o3e2y/arm64-v8a/GameActivity/CMakeFiles/game.dir
-/Users/josh/Unity Files/Cyber Siege/.utmp/RelWithDebInfo/2k4o3e2y/arm64-v8a/GameActivity/CMakeFiles/edit_cache.dir
-/Users/josh/Unity Files/Cyber Siege/.utmp/RelWithDebInfo/2k4o3e2y/arm64-v8a/GameActivity/CMakeFiles/rebuild_cache.dir

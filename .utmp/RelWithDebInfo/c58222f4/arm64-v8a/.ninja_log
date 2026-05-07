@@ -1,0 +1,10 @@
+# ninja log v5
+2	687	1778136365011764491	GameActivity/CMakeFiles/game.dir/UGAInputKeyEvent.cpp.o	c73bf112c778851f
+2	707	1778136365032992272	GameActivity/CMakeFiles/game.dir/UGAInputMotionEvent.cpp.o	658bb3df71b7f304
+1	732	1778136365055346974	GameActivity/CMakeFiles/game.dir/UGAEntry.cpp.o	9c25b9f132e06d7a
+0	738	1778136365059970073	GameActivity/CMakeFiles/game.dir/UGAConfiguration.cpp.o	4917e6beb0e1ef60
+1	787	1778136365114053468	GameActivity/CMakeFiles/game.dir/UGADebug.cpp.o	568bf57a8be3476f
+2	806	1778136365133369117	GameActivity/CMakeFiles/game.dir/UGASoftKeyboard.cpp.o	f4c5e73168c14998
+1	924	1778136365250690146	GameActivity/CMakeFiles/game.dir/UGAInput.cpp.o	f0d0fcf7e5e02d87
+0	956	1778136365282468838	GameActivity/CMakeFiles/game.dir/UGAApplication.cpp.o	d2e6292af9e56435
+956	1050	1778136365377434790	/Users/josh/Unity Files/Cyber Siege/Library/Bee/Android/Prj/IL2CPP/Gradle/unityLibrary/build/intermediates/cxx/RelWithDebInfo/c58222f4/obj/arm64-v8a/libgame.so	546776011d3002d8

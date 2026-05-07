@@ -1229,8 +1229,8 @@ MonoBehaviour:
   hapticStrength: 0.5
   useTransformAsFirePoint: 0
   spawnForwardOffset: 0.3
-  fireSpeed: 0.25
-  automaticFiring: 0
+  fireSpeed: 0.16
+  automaticFiring: 1
   showFirePointDebug: 0
   hapticPlayer: {fileID: 0}
   BulletFiredEvent:

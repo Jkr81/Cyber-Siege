@@ -113,7 +113,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemyBulletDamage
   startDamage: 15
-  maxDamage: 35
+  maxDamage: 36
   distanceToMaxDamage: 1500
   lifetime: 5
   impactEffect: {fileID: 1000013947318026, guid: d4bb44e0d96319e42a338ba7d4781d19, type: 3}
